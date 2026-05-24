@@ -1,0 +1,36 @@
+---
+interface Props {
+  title: string;
+  description: string;
+  slug: string;
+  date: Date;
+  readingTime?: string;
+}
+
+const { title, description, slug, date, readingTime } = Astro.props;
+
+const formattedDate = new Date(date).toLocaleDateString('en-US', {
+  year: 'numeric',
+  month: 'long',
+  day: 'numeric'
+});
+---
+
+<div class="mb-10 group">
+  <a href={`/essays/${slug}`} class="block no-underline">
+    <!-- Date & Reading Time label -->
+    <span class="type-label text-[0.62rem] text-ink-dim/60 block mb-2 transition-colors duration-300">
+      {formattedDate} {readingTime && `· ${readingTime}`}
+    </span>
+    
+    <!-- Title -->
+    <h3 class="font-garamond text-xl md:text-2xl font-light text-ink-strong group-hover:text-accent transition-colors duration-200 leading-tight mb-2">
+      {title}
+    </h3>
+    
+    <!-- Description -->
+    <p class="font-literata font-light text-sm leading-relaxed text-ink-dim group-hover:text-ink transition-colors duration-200">
+      {description}
+    </p>
+  </a>
+</div>

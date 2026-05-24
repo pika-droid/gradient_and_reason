@@ -1,0 +1,59 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import ScrollReveal from '../../components/ScrollReveal.astro';
+import SectionLabel from '../../components/SectionLabel.astro';
+import EssayCard from '../../components/EssayCard.astro';
+import SearchModal from '../../components/SearchModal.astro';
+import { getCollection } from 'astro:content';
+
+export async function getStaticPaths() {
+  const posts = await getCollection('blog');
+  const uniqueTags = [...new Set(posts.flatMap(post => post.data.tags || []))];
+
+  return uniqueTags.map(tag => {
+    const filteredPosts = posts
+      .filter(post => post.data.tags?.includes(tag) && !post.data.draft)
+      .sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf());
+    return {
+      params: { tag },
+      props: { posts: filteredPosts },
+    };
+  });
+}
+
+const { tag } = Astro.params;
+const { posts } = Astro.props;
+---
+
+<BaseLayout
+  title={`Tag: ${tag} — Gradient and Reason`}
+  description={`Essays and research notes tagged with ${tag}.`}
+>
+  <div class="max-w-prose mx-auto px-6 py-20 md:py-32">
+    <ScrollReveal>
+      <div class="mb-16">
+        <p class="type-kicker text-ink-dim mb-4">Topic Archive</p>
+        <h1 class="font-garamond text-4xl md:text-5xl font-light text-ink-strong leading-tight">
+          Essays tagged with "{tag}"
+        </h1>
+        <div class="w-10 h-[1px] bg-accent-pale my-8"></div>
+      </div>
+    </ScrollReveal>
+
+    <ScrollReveal>
+      <SectionLabel label="Filtered Articles" />
+      <div class="flex flex-col gap-4">
+        {posts.map(post => (
+          <EssayCard
+            title={post.data.title}
+            description={post.data.description}
+            slug={post.id}
+            date={post.data.date}
+          />
+        ))}
+      </div>
+    </ScrollReveal>
+  </div>
+
+  <SearchModal />
+</BaseLayout>

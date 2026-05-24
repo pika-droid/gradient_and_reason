@@ -1,0 +1,70 @@
+---
+---
+
+<button
+  id="theme-toggle"
+  class="relative flex items-center justify-center w-8 h-8 rounded-full border border-ink-faint text-ink hover:text-ink-strong hover:border-ink-dim transition-all duration-200"
+  aria-label="Toggle theme"
+>
+  <!-- Sun Icon (visible in dark mode) -->
+  <svg
+    id="sun-icon"
+    class="w-4 h-4 hidden dark:block"
+    xmlns="http://www.w3.org/2000/svg"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    stroke-width="1.5"
+    stroke-linecap="round"
+    stroke-linejoin="round"
+  >
+    <circle cx="12" cy="12" r="4"></circle>
+    <path d="M12 2v2"></path>
+    <path d="M12 20v2"></path>
+    <path d="M4.93 4.93l1.41 1.41"></path>
+    <path d="M17.66 17.66l1.41 1.41"></path>
+    <path d="M2 12h2"></path>
+    <path d="M20 12h2"></path>
+    <path d="M6.34 17.66l-1.41 1.41"></path>
+    <path d="M19.07 4.93l-1.41 1.41"></path>
+  </svg>
+
+  <!-- Moon Icon (visible in light mode) -->
+  <svg
+    id="moon-icon"
+    class="w-4 h-4 block dark:hidden"
+    xmlns="http://www.w3.org/2000/svg"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    stroke-width="1.5"
+    stroke-linecap="round"
+    stroke-linejoin="round"
+  >
+    <path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"></path>
+  </svg>
+</button>
+
+<script>
+  const setupToggle = () => {
+    const button = document.getElementById('theme-toggle');
+    if (!button) return;
+
+    button.addEventListener('click', () => {
+      const isLight = document.documentElement.classList.contains('light');
+      if (isLight) {
+        document.documentElement.classList.remove('light');
+        document.documentElement.classList.add('dark');
+        localStorage.setItem('theme', 'dark');
+      } else {
+        document.documentElement.classList.remove('dark');
+        document.documentElement.classList.add('light');
+        localStorage.setItem('theme', 'light');
+      }
+    });
+  };
+
+  setupToggle();
+  // Support Astro view transitions / document reloads
+  document.addEventListener('astro:after-swap', setupToggle);
+</script>

@@ -1,0 +1,147 @@
+---
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+import '../styles/global.css';
+
+interface Props {
+  title: string;
+  description: string;
+  image?: string;
+}
+
+const { title, description, image = '/og-default.png' } = Astro.props;
+const canonicalURL = new URL(Astro.url.pathname, Astro.site || 'https://gradientandreason.com');
+const imageUrl = new URL(image, Astro.site || 'https://gradientandreason.com');
+---
+
+<!DOCTYPE html>
+<html lang="en" class="dark">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    
+    <!-- Canonical URL -->
+    <link rel="canonical" href={canonicalURL} />
+
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content={canonicalURL} />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:image" content={imageUrl} />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+
+    <!-- Twitter -->
+    <meta property="twitter:card" content="summary_large_image" />
+    <meta property="twitter:url" content={canonicalURL} />
+    <meta property="twitter:title" content={title} />
+    <meta property="twitter:description" content={description} />
+    <meta property="twitter:image" content={imageUrl} />
+
+    <!-- Theme Inline Script to avoid theme flash -->
+    <script is:inline>
+      const getTheme = () => {
+        if (typeof localStorage !== 'undefined' && localStorage.getItem('theme')) {
+          return localStorage.getItem('theme');
+        }
+        if (window.matchMedia('(prefers-color-scheme: light)').matches) {
+          return 'light';
+        }
+        return 'dark';
+      };
+
+      const theme = getTheme();
+      if (theme === 'light') {
+        document.documentElement.classList.remove('dark');
+        document.documentElement.classList.add('light');
+      } else {
+        document.documentElement.classList.remove('light');
+        document.documentElement.classList.add('dark');
+      }
+    </script>
+
+    <!-- VS Code Style Code Windows Script -->
+    <script>
+      const setupCodeWindows = () => {
+        document.querySelectorAll('pre.astro-code').forEach((pre) => {
+          if (!(pre instanceof HTMLElement)) return;
+          if (pre.parentNode && (pre.parentNode as HTMLElement).classList.contains('code-window')) return;
+
+          // Extract language from attribute or classes
+          let lang = pre.getAttribute('data-language') || '';
+          if (!lang) {
+            const classes = Array.from(pre.classList);
+            const langClass = classes.find(c => c !== 'astro-code' && c !== 'wrap' && c !== 'one-dark-pro');
+            lang = langClass || 'CODE';
+          }
+          lang = lang.toUpperCase();
+          
+          // Nicer mappings
+          if (lang === 'JS') lang = 'JAVASCRIPT';
+          if (lang === 'PY') lang = 'PYTHON';
+          if (lang === 'TS') lang = 'TYPESCRIPT';
+
+          // Create code-window container
+          const container = document.createElement('div');
+          container.className = 'code-window group relative my-10 border border-code-border rounded-lg overflow-hidden bg-code-bg shadow-sm transition-colors duration-300';
+
+          // Create header
+          const header = document.createElement('div');
+          header.className = 'code-header flex items-center justify-between px-4 py-3 bg-surface/50 border-b border-code-border select-none';
+          header.innerHTML = `
+            <div class="flex items-center gap-1.5">
+              <span class="w-3 h-3 rounded-full bg-[#ff5f56]/90"></span>
+              <span class="w-3 h-3 rounded-full bg-[#ffbd2e]/90"></span>
+              <span class="w-3 h-3 rounded-full bg-[#27c93f]/90"></span>
+            </div>
+            <div class="flex items-center gap-3">
+              <span class="font-mono text-[9px] tracking-widest text-ink-dim/80 font-bold uppercase">${lang}</span>
+              <button class="copy-btn text-ink-dim hover:text-ink-strong transition-colors duration-150 p-1 rounded hover:bg-surface-raised" aria-label="Copy code">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-3.5 h-3.5"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg>
+              </button>
+            </div>
+          `;
+
+          // Rearrange DOM
+          if (pre.parentNode) {
+            pre.parentNode.insertBefore(container, pre);
+            container.appendChild(header);
+            container.appendChild(pre);
+          }
+
+          // Hook copy button event
+          const copyBtn = header.querySelector('.copy-btn');
+          if (copyBtn) {
+            copyBtn.addEventListener('click', async () => {
+              const codeText = pre.querySelector('code')?.innerText || pre.innerText;
+              try {
+                await navigator.clipboard.writeText(codeText);
+                copyBtn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-3.5 h-3.5 text-accent"><polyline points="20 6 9 17 4 12"/></svg>`;
+                setTimeout(() => {
+                  copyBtn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-3.5 h-3.5"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg>`;
+                }, 2000);
+              } catch (err) {
+                console.error('Failed to copy: ', err);
+              }
+            });
+          }
+        });
+      };
+
+      // Run immediately and after swap (supporting view transitions if added later)
+      setupCodeWindows();
+      document.addEventListener('astro:after-swap', setupCodeWindows);
+    </script>
+  </head>
+  <body class="flex flex-col min-h-screen">
+    <Header />
+    <main class="flex-grow">
+      <slot />
+    </main>
+    <Footer />
+  </body>
+</html>

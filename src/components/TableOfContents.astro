@@ -1,0 +1,105 @@
+---
+interface Heading {
+  depth: number;
+  slug: string;
+  text: string;
+}
+
+interface Props {
+  headings: Heading[];
+}
+
+const { headings } = Astro.props;
+
+// Filter for H2s only
+const h2Headings = headings.filter((h) => h.depth === 2);
+
+function getRomanNumeral(num: number): string {
+  const roman = ["I", "II", "III", "IV", "V", "VI", "VII", "VIII", "IX", "X", "XI", "XII", "XIII", "XIV", "XV"];
+  return roman[num - 1] || num.toString();
+}
+---
+
+{h2Headings.length > 0 && (
+  <nav class="toc-sidebar hidden xl:block sticky top-32 h-fit max-w-[220px] pr-8 py-2 select-none">
+    <p class="type-label text-[0.62rem] text-accent tracking-[0.2em] mb-6">Outline</p>
+    <ul class="flex flex-col gap-4 text-[0.68rem] font-garamond uppercase tracking-[0.15em] leading-relaxed">
+      {h2Headings.map((heading, index) => {
+        const roman = getRomanNumeral(index + 1);
+        return (
+          <li>
+            <a
+              href={`#${heading.slug}`}
+              class="toc-link block text-ink-dim hover:text-ink-strong transition-all duration-200 pl-3 border-l border-transparent"
+              data-slug={heading.slug}
+            >
+              <span class="text-accent/60 mr-1.5">{roman}.</span>
+              {heading.text}
+            </a>
+          </li>
+        );
+      })}
+    </ul>
+  </nav>
+)}
+
+<script>
+  const setupScrollSpy = () => {
+    const links = document.querySelectorAll('.toc-link');
+    const headings = Array.from(links).map(link => {
+      const slug = link.getAttribute('data-slug');
+      return document.getElementById(slug || '');
+    }).filter((el): el is HTMLElement => el !== null);
+
+    if (links.length === 0 || headings.length === 0) return;
+
+    // Use IntersectionObserver to track which heading is currently in the top viewport section
+    const observerOptions = {
+      root: null,
+      rootMargin: '-80px 0px -75% 0px', // Adjusted to match header offset and top reading zone
+      threshold: 0
+    };
+
+    const observer = new IntersectionObserver((entries) => {
+      // Find the topmost intersecting heading
+      let currentActiveSlug = '';
+      
+      // Look at all headings that entered or exited
+      entries.forEach(() => {
+        // We evaluate all visible headings on scroll
+        const visibleHeadings = headings.filter(h => {
+          const rect = h.getBoundingClientRect();
+          // Heading is below the sticky header (80px) and above the 75% screen height cutoff
+          return rect.top >= 40 && rect.top <= window.innerHeight * 0.45;
+        });
+
+        if (visibleHeadings.length > 0) {
+          // Sort by distance to top of viewport
+          visibleHeadings.sort((a, b) => a.getBoundingClientRect().top - b.getBoundingClientRect().top);
+          currentActiveSlug = visibleHeadings[0].id;
+        }
+      });
+
+      if (currentActiveSlug) {
+        links.forEach(l => {
+          const slug = l.getAttribute('data-slug');
+          if (slug === currentActiveSlug) {
+            l.classList.remove('text-ink-dim', 'border-transparent');
+            l.classList.add('active', 'text-ink-strong', 'border-accent');
+          } else {
+            l.classList.remove('active', 'text-ink-strong', 'border-accent');
+            l.classList.add('text-ink-dim', 'border-transparent');
+          }
+        });
+      }
+    }, observerOptions);
+
+    headings.forEach(heading => observer.observe(heading));
+  };
+
+  // Run on page load
+  setupScrollSpy();
+  
+  // Re-run setup on swap if View Transitions are used
+  document.addEventListener('astro:after-swap', setupScrollSpy);
+</script>

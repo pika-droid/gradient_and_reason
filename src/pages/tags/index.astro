@@ -1,0 +1,51 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import ScrollReveal from '../../components/ScrollReveal.astro';
+import SectionLabel from '../../components/SectionLabel.astro';
+import SearchModal from '../../components/SearchModal.astro';
+import { getCollection } from 'astro:content';
+
+const posts = await getCollection('blog');
+const tags = [...new Set(posts.flatMap(post => post.data.tags || []))].sort();
+---
+
+<BaseLayout
+  title="Tags — Gradient and Reason"
+  description="Explore essays by topic: Machine Learning, Philosophy, Data Science, Causal Inference."
+>
+  <div class="max-w-prose mx-auto px-6 py-20 md:py-32">
+    <ScrollReveal>
+      <div class="mb-16">
+        <p class="type-kicker text-ink-dim mb-4">Taxonomy</p>
+        <h1 class="font-garamond text-4xl md:text-5xl font-light text-ink-strong leading-tight">
+          Browse by Tag
+        </h1>
+        <div class="w-10 h-[1px] bg-accent-pale my-8"></div>
+      </div>
+    </ScrollReveal>
+
+    <ScrollReveal>
+      <SectionLabel label="All Topics" />
+      <div class="flex flex-wrap gap-4 mt-8">
+        {tags.length > 0 ? (
+          tags.map(tag => {
+            const count = posts.filter(post => post.data.tags?.includes(tag)).length;
+            return (
+              <a
+                href={`/tags/${tag}`}
+                class="type-label flex items-center gap-2 text-ink-dim hover:text-ink-strong border border-ink-faint hover:border-ink-dim px-4 py-2 text-xs transition-all duration-200"
+              >
+                <span>{tag}</span>
+                <span class="text-[0.62rem] text-accent font-medium">({count})</span>
+              </a>
+            );
+          })
+        ) : (
+          <p class="font-literata font-light text-sm text-ink-dim">No tags found.</p>
+        )}
+      </div>
+    </ScrollReveal>
+  </div>
+
+  <SearchModal />
+</BaseLayout>

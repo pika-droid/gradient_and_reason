@@ -1,0 +1,66 @@
+---
+const today = new Date();
+---
+
+<footer class="border-t border-ink-faint bg-bg py-16 px-6 mt-auto transition-colors duration-300">
+  <div class="max-w-[1100px] mx-auto">
+    <!-- Three-Column Layout -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-10 md:gap-6 mb-12">
+      
+      <!-- Column 1: Identity & Mission -->
+      <div class="flex flex-col gap-3">
+        <span class="font-garamond text-xs font-medium tracking-[0.25em] text-ink-strong uppercase">
+          Gradient and Reason
+        </span>
+        <p class="font-literata font-light text-xs text-ink-dim leading-relaxed max-w-[280px]">
+          An archival effort to bridge the gap between technical execution and deep understanding. On machine knowledge & philosophical loss.
+        </p>
+      </div>
+
+      <!-- Column 2: Colophon -->
+      <div class="flex flex-col gap-3">
+        <span class="type-label text-[0.62rem] text-accent tracking-[0.2em]">
+          COLOPHON
+        </span>
+        <p class="font-literata font-light text-xs text-ink-dim leading-relaxed">
+          Crafted with 
+          <a href="https://astro.build" target="_blank" class="hover:text-ink-strong text-ink-dim transition-colors duration-200">Astro</a>, 
+          <a href="https://mdxjs.com" target="_blank" class="hover:text-ink-strong text-ink-dim transition-colors duration-200">MDX</a>, 
+          <a href="https://tailwindcss.com" target="_blank" class="hover:text-ink-strong text-ink-dim transition-colors duration-200">Tailwind</a>, 
+          <a href="https://shiki.style" target="_blank" class="hover:text-ink-strong text-ink-dim transition-colors duration-200">Shiki</a>, and 
+          <a href="https://katex.org" target="_blank" class="hover:text-ink-strong text-ink-dim transition-colors duration-200">KaTeX</a>. 
+          Set in EB Garamond & Literata.
+        </p>
+      </div>
+
+      <!-- Column 3: Links -->
+      <div class="flex flex-col gap-3 md:items-end">
+        <span class="type-label text-[0.62rem] text-accent tracking-[0.2em] md:text-right">
+          LINKS & ACTIONS
+        </span>
+        <div class="flex flex-col gap-2 text-[0.68rem] font-garamond tracking-[0.15em] text-ink-dim uppercase md:items-end">
+          <a href="/rss.xml" target="_blank" class="hover:text-ink-strong transition-colors duration-200">
+            RSS Feed
+          </a>
+          <a href="https://github.com" target="_blank" class="hover:text-ink-strong transition-colors duration-200">
+            Source Code
+          </a>
+          <a href="#cite" class="hover:text-ink-strong transition-colors duration-200" onclick="alert('Citation format:\n\nGradient and Reason. (2026). On Machine Knowledge & Philosophical Loss. https://gradientandreason.com')">
+            Cite this site
+          </a>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Bottom Row: Copyright -->
+    <div class="border-t border-ink-faint/60 pt-8 flex flex-col md:flex-row items-center justify-between gap-4">
+      <div class="text-[0.62rem] font-garamond tracking-wider text-ink-dim/80 uppercase">
+        &copy; {today.getFullYear()} Gradient and Reason. All rights reserved.
+      </div>
+      <div class="text-[0.62rem] font-garamond tracking-wider text-ink-dim/80 uppercase">
+        Built for deep reading.
+      </div>
+    </div>
+  </div>
+</footer>

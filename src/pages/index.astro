@@ -1,0 +1,85 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import HeroSection from '../components/HeroSection.astro';
+import ScrollReveal from '../components/ScrollReveal.astro';
+import SectionLabel from '../components/SectionLabel.astro';
+import EssayCard from '../components/EssayCard.astro';
+import ReadingNote from '../components/ReadingNote.astro';
+import SearchModal from '../components/SearchModal.astro';
+import { getCollection, render } from 'astro:content';
+
+const allPosts = (await getCollection('blog'))
+  .filter(post => !post.data.draft)
+  .sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf());
+
+// We only show the latest 3 essays as featured on the landing page
+const featuredPosts = await Promise.all(
+  allPosts.slice(0, 3).map(async (post) => {
+    const rendered = await render(post);
+    return {
+      ...post,
+      readingTime: rendered.remarkPluginFrontmatter.readingTime
+    };
+  })
+);
+---
+
+<BaseLayout
+  title="Gradient and Reason — On Machine Knowledge & Philosophical Loss"
+  description="An archival effort to bridge the gap between technical execution and deep understanding, exploring machine learning and philosophy."
+>
+  <!-- Hero Section -->
+  <HeroSection />
+
+  <!-- Main Landing Content -->
+  <div class="max-w-prose mx-auto px-6 py-20 flex flex-col gap-24">
+    <!-- Section I: The Project -->
+    <ScrollReveal>
+      <SectionLabel label="I. The Project" />
+      <div class="flex flex-col gap-6">
+        <h2 class="font-garamond text-2xl md:text-3xl font-light text-ink-strong leading-tight">
+          At the intersection of empirical rigor and philosophical inquiry.
+        </h2>
+        <p class="font-literata font-light text-base leading-relaxed text-ink-dim">
+          Gradient and Reason is an archival effort to bridge the gap between technical execution and deep understanding. We explore the structural causal models that define our systems, the latent manifolds that hold our memories, and the ethical foundations that guide our progress. Here, machine learning meets the history of thought.
+        </p>
+      </div>
+    </ScrollReveal>
+
+    <!-- Section II: Featured Essays -->
+    {featuredPosts.length > 0 && (
+      <ScrollReveal>
+        <SectionLabel label="II. Featured Essays" />
+        <div class="flex flex-col gap-4">
+          {featuredPosts.map(post => (
+            <EssayCard
+              title={post.data.title}
+              description={post.data.description}
+              slug={post.id}
+              date={post.data.date}
+              readingTime={post.readingTime}
+            />
+          ))}
+        </div>
+      </ScrollReveal>
+    )}
+
+    <!-- Section III: Reading Notes -->
+    <ScrollReveal>
+      <SectionLabel label="III. Reading Notes" />
+      <div class="flex flex-col gap-6">
+        <ReadingNote
+          quote="Data do not understand causes and effects; they only grasp associations. To move from association to causation requires a model of the world."
+          author="Judea Pearl"
+        />
+        <ReadingNote
+          quote="A theory that explains everything, explains nothing. The criterion of the scientific status of a theory is its falsifiability."
+          author="Karl Popper"
+        />
+      </div>
+    </ScrollReveal>
+  </div>
+
+  <!-- Search Modal -->
+  <SearchModal />
+</BaseLayout>

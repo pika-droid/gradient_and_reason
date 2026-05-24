@@ -1,0 +1,88 @@
+---
+import ThemeToggle from './ThemeToggle.astro';
+
+const currentPath = Astro.url.pathname;
+---
+
+<header class="sticky top-0 z-50 bg-bg/80 backdrop-blur-md border-b border-ink-faint transition-colors duration-300">
+  <div class="max-w-[1200px] mx-auto px-6 py-4 flex items-center justify-between">
+    <!-- Brand Wordmark -->
+    <a href="/" class="group flex flex-col">
+      <span class="font-garamond text-lg font-medium tracking-[0.25em] text-ink-strong group-hover:text-accent transition-colors duration-200 uppercase">
+        Gradient and Reason
+      </span>
+    </a>
+
+    <!-- Nav Menu & Actions -->
+    <nav class="flex items-center gap-6 md:gap-8">
+      <div class="hidden sm:flex items-center gap-6 md:gap-8 text-xs font-garamond tracking-widest uppercase">
+        <a
+          href="/essays"
+          class={`transition-colors duration-200 ${
+            currentPath.startsWith('/essays') ? 'text-ink-strong underline decoration-accent underline-offset-4' : 'text-ink-dim hover:text-ink-strong'
+          }`}
+        >
+          Essays
+        </a>
+        <a
+          href="/about"
+          class={`transition-colors duration-200 ${
+            currentPath === '/about' ? 'text-ink-strong underline decoration-accent underline-offset-4' : 'text-ink-dim hover:text-ink-strong'
+          }`}
+        >
+          About
+        </a>
+      </div>
+
+      <!-- Actions (Search, RSS, Theme Toggle) -->
+      <div class="flex items-center gap-4">
+        <!-- Search Trigger -->
+        <button
+          id="search-trigger"
+          class="p-2 text-ink hover:text-ink-strong transition-colors duration-200"
+          aria-label="Open search (Ctrl+K)"
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="1.5"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            class="w-4 h-4"
+          >
+            <circle cx="11" cy="11" r="8"></circle>
+            <path d="m21 21-4.3-4.3"></path>
+          </svg>
+        </button>
+
+        <!-- RSS Link -->
+        <a
+          href="/rss.xml"
+          target="_blank"
+          class="p-2 text-ink hover:text-ink-strong transition-colors duration-200"
+          aria-label="RSS Feed"
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="1.5"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            class="w-4 h-4"
+          >
+            <path d="M4 11a9 9 0 0 1 9 9"></path>
+            <path d="M4 4a16 16 0 0 1 16 16"></path>
+            <circle cx="5" cy="19" r="1"></circle>
+          </svg>
+        </a>
+
+        <!-- Theme Toggle -->
+        <ThemeToggle />
+      </div>
+    </nav>
+  </div>
+</header>

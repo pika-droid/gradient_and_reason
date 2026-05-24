@@ -1,0 +1,40 @@
+---
+---
+<div id="reading-progress" class="fixed top-0 left-0 w-0 h-[3px] bg-accent z-[60] transition-all duration-75 ease-out pointer-events-none"></div>
+
+<script>
+  const progress = document.getElementById('reading-progress');
+  if (progress) {
+    const updateProgress = () => {
+      const scrollY = window.scrollY;
+      const docHeight = document.documentElement.scrollHeight;
+      const winHeight = window.innerHeight;
+      const scrollable = docHeight - winHeight;
+      
+      if (scrollable <= 0) {
+        progress.style.width = '0%';
+        return;
+      }
+      
+      const percentage = Math.max(0, Math.min(100, (scrollY / scrollable) * 100));
+      progress.style.width = `${percentage}%`;
+    };
+    
+    let ticking = false;
+    window.addEventListener('scroll', () => {
+      if (!ticking) {
+        window.requestAnimationFrame(() => {
+          updateProgress();
+          ticking = false;
+        });
+        ticking = true;
+      }
+    }, { passive: true });
+    
+    // Initial call
+    updateProgress();
+    
+    // Update on resize too
+    window.addEventListener('resize', updateProgress, { passive: true });
+  }
+</script>

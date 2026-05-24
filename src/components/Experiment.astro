@@ -1,0 +1,24 @@
+---
+interface Props {
+  dataset: string;
+  model: string;
+  metric: string;
+}
+
+const { dataset, model, metric } = Astro.props;
+---
+
+<div class="my-8 p-6 border border-ink-faint bg-surface flex flex-col sm:flex-row justify-between gap-6 sm:gap-4 transition-colors duration-300">
+  <div class="flex flex-col gap-1">
+    <span class="type-label text-[0.62rem] text-accent font-medium">Dataset</span>
+    <span class="font-garamond text-base text-ink-strong">{dataset}</span>
+  </div>
+  <div class="flex flex-col gap-1">
+    <span class="type-label text-[0.62rem] text-accent font-medium">Model</span>
+    <span class="font-garamond text-base text-ink-strong">{model}</span>
+  </div>
+  <div class="flex flex-col gap-1">
+    <span class="type-label text-[0.62rem] text-accent font-medium">Metric</span>
+    <span class="font-garamond text-base text-ink-strong">{metric}</span>
+  </div>
+</div>

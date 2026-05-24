@@ -1,0 +1,191 @@
+---
+---
+
+<div
+  id="search-modal"
+  class="fixed inset-0 z-[100] hidden bg-bg/90 backdrop-blur-sm flex items-center justify-center p-4 transition-all duration-300"
+>
+  <div class="bg-surface border border-ink-faint w-full max-w-[600px] p-8 flex flex-col gap-6 relative transition-colors duration-300">
+    <button
+      id="close-search"
+      class="absolute top-4 right-4 text-ink-dim hover:text-ink-strong uppercase text-[0.62rem] font-garamond tracking-widest transition-colors duration-200"
+    >
+      [Close]
+    </button>
+    
+    <div class="flex flex-col gap-1">
+      <h3 class="font-garamond text-xl text-ink-strong">Search Essays</h3>
+      <p class="text-xs text-ink-dim font-literata font-light">Search articles by title, tags, keywords or philosophical concepts.</p>
+    </div>
+
+    <div id="search-ui" class="w-full">
+      <div class="text-center py-4 text-xs text-ink-dim font-literata">
+        Loading search index...
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  // Add interface properties to window for TypeScript
+  interface Window {
+    PagefindUI?: any;
+    pagefindUIInstance?: any;
+  }
+
+  const initSearch = () => {
+    const trigger = document.getElementById('search-trigger');
+    const modal = document.getElementById('search-modal');
+    const closeBtn = document.getElementById('close-search');
+    const searchUI = document.getElementById('search-ui');
+
+    if (!trigger || !modal || !closeBtn || !searchUI) return;
+
+    let isLoaded = false;
+
+    const loadPagefind = async () => {
+      if (window.PagefindUI) return true;
+
+      // Dynamically insert CSS
+      const link = document.createElement('link');
+      link.rel = 'stylesheet';
+      link.href = '/pagefind/pagefind-ui.css';
+      document.head.appendChild(link);
+
+      // Dynamically load JS
+      return new Promise((resolve) => {
+        const script = document.createElement('script');
+        script.src = '/pagefind/pagefind-ui.js';
+        script.onload = () => resolve(true);
+        script.onerror = () => {
+          console.warn("Pagefind files not found (expected in dev mode, available after build).");
+          resolve(false);
+        };
+        document.head.appendChild(script);
+      });
+    };
+
+    const openModal = async () => {
+      modal.classList.remove('hidden');
+      document.body.classList.add('overflow-hidden');
+
+      if (!isLoaded) {
+        const success = await loadPagefind();
+        if (success && window.PagefindUI) {
+          searchUI.innerHTML = '';
+          // @ts-ignore
+          window.pagefindUIInstance = new window.PagefindUI({
+            element: "#search-ui",
+            showImages: false,
+            resetFilters: true,
+            bundlePath: "/pagefind/"
+          });
+          isLoaded = true;
+        } else {
+          searchUI.innerHTML = `
+            <div class="text-center py-4 text-xs text-ink-dim font-literata">
+              Search index is generated during build. 
+              <br/>
+              Run <code class="bg-surface-raised border border-ink-faint px-1 py-0.5 font-mono text-[0.72rem] text-accent">npm run build</code> to compile search.
+            </div>
+          `;
+        }
+      }
+
+      setTimeout(() => {
+        const input = modal.querySelector('input');
+        if (input) input.focus();
+      }, 100);
+    };
+
+    const closeModal = () => {
+      modal.classList.add('hidden');
+      document.body.classList.remove('overflow-hidden');
+    };
+
+    trigger.addEventListener('click', openModal);
+    closeBtn.addEventListener('click', closeModal);
+
+    // Keyboard shortcut (Cmd+K or Ctrl+K)
+    window.addEventListener('keydown', (e) => {
+      if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
+        e.preventDefault();
+        openModal();
+      }
+      if (e.key === 'Escape') {
+        closeModal();
+      }
+    });
+
+    // Close when clicking outside modal content
+    modal.addEventListener('click', (e) => {
+      if (e.target === modal) {
+        closeModal();
+      }
+    });
+  };
+
+  initSearch();
+  // Support Astro View Transitions / reload
+  document.addEventListener('astro:after-swap', initSearch);
+</script>
+
+<style is:global>
+  /* Custom overrides for Pagefind UI to match Dark Academic styling */
+  #search-ui {
+    --pagefind-ui-primary: var(--accent) !important;
+    --pagefind-ui-text: var(--ink) !important;
+    --pagefind-ui-background: var(--surface) !important;
+    --pagefind-ui-border: var(--ink-faint) !important;
+    --pagefind-ui-tag: var(--ink-dim) !important;
+    --pagefind-ui-font: 'Literata', serif !important;
+  }
+
+  #search-ui .pagefind-ui__search-input {
+    border-radius: 0px !important;
+    font-size: 0.95rem !important;
+    font-weight: 300 !important;
+  }
+
+  #search-ui .pagefind-ui__search-input:focus {
+    border-color: var(--accent) !important;
+    outline: none !important;
+  }
+
+  #search-ui .pagefind-ui__result {
+    border-top: 1px solid var(--ink-faint) !important;
+    padding: 1rem 0 !important;
+  }
+
+  #search-ui .pagefind-ui__result-link {
+    font-family: 'EB Garamond', serif !important;
+    font-size: 1.15rem !important;
+    color: var(--ink-strong) !important;
+    font-weight: 300 !important;
+    text-underline-offset: 3px !important;
+  }
+
+  #search-ui .pagefind-ui__result-excerpt {
+    font-size: 0.85rem !important;
+    color: var(--ink-dim) !important;
+    font-weight: 300 !important;
+    line-height: 1.6 !important;
+  }
+
+  #search-ui .pagefind-ui__button {
+    border-radius: 0px !important;
+    font-family: 'EB Garamond', serif !important;
+    font-size: 0.85rem !important;
+    text-transform: uppercase !important;
+    letter-spacing: 0.1em !important;
+    border-color: var(--ink-faint) !important;
+    color: var(--ink-dim) !important;
+    transition: all 0.2s ease !important;
+  }
+
+  #search-ui .pagefind-ui__button:hover {
+    border-color: var(--accent) !important;
+    color: var(--ink-strong) !important;
+    background: var(--surface-raised) !important;
+  }
+</style>

@@ -1,0 +1,47 @@
+---
+---
+
+<div class="hero-section text-center pt-24 pb-16 px-6 border-b border-ink-faint transition-colors duration-300">
+  <div class="max-w-[800px] mx-auto flex flex-col items-center">
+    <!-- Title -->
+    <h1 class="hero-enter font-garamond text-5xl md:text-7xl font-light tracking-wide text-ink-strong mb-6 leading-tight select-none" data-delay="0">
+      Gradient and Reason
+    </h1>
+    
+    <!-- Tagline -->
+    <p class="hero-enter font-garamond italic text-lg md:text-xl text-ink-dim max-w-[500px] mb-8 leading-relaxed" data-delay="150">
+      On machine knowledge & philosophical loss.
+    </p>
+
+    <!-- Navigation Kickers / Labels -->
+    <div class="hero-enter flex items-center justify-center gap-3 text-[0.62rem] md:text-[0.68rem] tracking-[0.2em] text-accent uppercase font-medium" data-delay="300">
+      <span>Machine Learning</span>
+      <span class="text-ink-faint select-none">·</span>
+      <span>Data Analysis</span>
+      <span class="text-ink-faint select-none">·</span>
+      <span>Philosophy</span>
+    </div>
+
+    <!-- Divider Rule -->
+    <div class="hero-enter w-10 h-[1px] bg-accent-pale my-12" data-delay="450"></div>
+  </div>
+</div>
+
+<script>
+  const runHeroAnimation = () => {
+    const enterItems = document.querySelectorAll('.hero-enter');
+    enterItems.forEach((item) => {
+      const delay = parseInt(item.getAttribute('data-delay') || '0', 10);
+      setTimeout(() => {
+        item.classList.add('visible');
+      }, delay);
+    });
+  };
+
+  // Run on DOMContentLoaded or immediately if already loaded
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', runHeroAnimation);
+  } else {
+    runHeroAnimation();
+  }
+</script>
