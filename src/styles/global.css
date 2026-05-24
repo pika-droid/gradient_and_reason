@@ -215,6 +215,8 @@
   background-color: var(--code-bg);
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
   transition: border-color 0.3s ease, background-color 0.3s ease;
+  max-width: 100%;
+  width: 100%;
 }
 
 .light .code-window {
@@ -239,6 +241,8 @@ pre.astro-code {
   color: var(--ink);
   overflow-x: auto;
   overflow-y: hidden;
+  width: 100%;
+  max-width: 100%;
 }
 
 /* Comparison tables */
@@ -250,6 +254,7 @@ pre.astro-code {
   border-radius: 8px;
   background-color: var(--surface);
   transition: border-color 0.3s ease, background-color 0.3s ease;
+  max-width: 100%;
 }
 
 @media (min-width: 768px) {

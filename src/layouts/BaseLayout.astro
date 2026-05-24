@@ -87,7 +87,7 @@ const imageUrl = new URL(image, Astro.site || 'https://gradientandreason.com');
 
           // Create code-window container
           const container = document.createElement('div');
-          container.className = 'code-window group relative my-10 border border-code-border rounded-lg overflow-hidden bg-code-bg shadow-sm transition-colors duration-300';
+          container.className = 'code-window group relative my-10 border border-code-border rounded-lg overflow-hidden bg-code-bg shadow-sm transition-colors duration-300 w-full max-w-full';
 
           // Create header
           const header = document.createElement('div');
