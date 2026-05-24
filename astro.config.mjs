@@ -8,7 +8,7 @@ import { remarkReadingTime } from './src/utils/remark-reading-time.mjs';
 
 // https://astro.build/config
 export default defineConfig({
-	site: 'https://gradientandreason.com',
+	site: 'https://gradient-and-reason.vercel.app',
 	integrations: [
 		mdx(),
 		sitemap(),

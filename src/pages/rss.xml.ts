@@ -9,7 +9,7 @@ export async function GET(context: any) {
   return rss({
     title: SITE_TITLE,
     description: SITE_DESCRIPTION,
-    site: context.site || 'https://gradientandreason.com',
+    site: 'https://gradient-and-reason.vercel.app',
     items: nonDraftPosts.map((post) => ({
       title: post.data.title,
       pubDate: post.data.date,
