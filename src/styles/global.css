@@ -331,3 +331,134 @@ pre.astro-code {
   color: var(--ink-strong);
   font-weight: 400;
 }
+
+/* Inline Glossary Term Tooltips */
+.term-trigger {
+  position: relative;
+  border-bottom: 1px dotted var(--accent);
+  cursor: help;
+  display: inline;
+  transition: color 0.2s ease, border-bottom-color 0.2s ease;
+  color: var(--ink-strong);
+}
+
+.term-trigger:hover,
+.term-trigger.active {
+  color: var(--accent);
+  border-bottom-color: var(--accent);
+}
+
+.term-tooltip {
+  position: absolute;
+  bottom: calc(100% + 8px);
+  left: 50%;
+  transform: translateX(-50%) translateY(4px);
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  width: 260px;
+  max-width: 280px;
+  background-color: var(--surface-raised);
+  border: 1px solid var(--code-border);
+  border-radius: 6px;
+  padding: 0.8rem 0.95rem;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.25);
+  font-family: 'Literata', Georgia, serif;
+  font-size: 0.78rem;
+  line-height: 1.5;
+  color: var(--ink);
+  text-align: left;
+  z-index: 70;
+  transition: opacity 0.2s cubic-bezier(0.16, 1, 0.3, 1), transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), visibility 0.2s;
+}
+
+.light .term-tooltip {
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+}
+
+.term-trigger:hover .term-tooltip,
+.term-trigger.active .term-tooltip {
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+  transform: translateX(-50%) translateY(0);
+}
+
+/* Tooltip caret arrows with custom properties for viewport shifts */
+.term-tooltip::before {
+  content: '';
+  position: absolute;
+  top: 100%;
+  left: var(--caret-left, 50%);
+  transform: translateX(-50%);
+  border-width: 6px;
+  border-style: solid;
+  border-color: var(--surface-raised) transparent transparent transparent;
+  pointer-events: none;
+  z-index: 2;
+}
+
+.term-tooltip::after {
+  content: '';
+  position: absolute;
+  top: 100%;
+  left: var(--caret-left, 50%);
+  transform: translateX(-50%);
+  border-width: 7px;
+  border-style: solid;
+  border-color: var(--code-border) transparent transparent transparent;
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* Tooltip internal content styles */
+.term-name {
+  display: block;
+  font-family: 'EB Garamond', Georgia, serif;
+  font-size: 0.85rem;
+  font-weight: 500;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--ink-strong);
+  margin-bottom: 0.3rem;
+  border-bottom: 1px solid var(--code-border);
+  padding-bottom: 0.2rem;
+}
+
+.term-def {
+  display: block;
+  margin-bottom: 0.5rem;
+}
+
+.term-footer {
+  display: block;
+  text-align: right;
+}
+
+.term-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  font-family: 'EB Garamond', Georgia, serif;
+  font-size: 0.75rem;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--accent) !important;
+  text-decoration: none !important;
+  transition: color 0.2s ease;
+}
+
+.term-link:hover {
+  color: var(--ink-strong) !important;
+}
+
+.term-link .arrow {
+  display: inline-block;
+  transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.term-link:hover .arrow {
+  transform: translateX(3px);
+}
+

@@ -10,6 +10,7 @@ subtitle: "Why our most successful systems may still know nothing — and how em
 import ScrollReveal from '../../components/ScrollReveal.astro';
 import SectionLabel from '../../components/SectionLabel.astro';
 import Philosophy from '../../components/Philosophy.astro';
+import Term from '../../components/Term.astro';
 
 <ScrollReveal>
 We built systems that predict extraordinarily well, and somewhere in the celebrating we forgot to ask whether prediction and understanding are the same thing. They are not. But the confusion is understandable — for most of history, they arrived together. You understood something, and so you could anticipate it. The two felt inseparable.
@@ -40,9 +41,9 @@ Machine learning unexpectedly returns us to this ancient divide. We have become 
 
 ## Underdetermination — The First Wound
 
-What makes predictive success so philosophically dangerous is that it *feels* like evidence of understanding. When something works, we assume comprehension behind it. Yet philosophy has long warned us of a trap: the **Duhem-Quine thesis**, which states that a body of evidence can always underdetermine the theory used to explain it. Multiple incompatible accounts of reality can produce identical observations.
+What makes predictive success so philosophically dangerous is that it *feels* like evidence of understanding. When something works, we assume comprehension behind it. Yet philosophy has long warned us of a trap: the <Term id="duhem-quine">**Duhem-Quine thesis**</Term>, which states that a body of evidence can always underdetermine the theory used to explain it. Multiple incompatible accounts of reality can produce identical observations.
 
-In modern machine learning, this is no longer an abstract thought experiment; it is a demonstrable fact found within **Structural Causal Models (SCMs)**. Let us build two entirely different worlds in code. In World A, variable $X$ causes $Y$, which subsequently causes $Z$. In World B, the arrow of time and physical consequence is entirely reversed: $Z$ causes $Y$, which causes $X$.
+In modern machine learning, this is no longer an abstract thought experiment; it is a demonstrable fact found within <Term id="scm">**Structural Causal Models (SCMs)**</Term>. Let us build two entirely different worlds in code. In World A, variable $X$ causes $Y$, which subsequently causes $Z$. In World B, the arrow of time and physical consequence is entirely reversed: $Z$ causes $Y$, which causes $X$.
 
 ```python
 # structural_causal_models.py
@@ -73,7 +74,7 @@ cov_B = np.cov(data_B)
 
 <h3 class="analysis-title">The Analysis of the Illusion</h3>
 
-If you execute this code, the output matrices reveal an unsettling observational symmetry. The empirical covariance matrices are virtually indistinguishable within minor random sampling noise:
+If you execute this code, the output matrices reveal an unsettling observational symmetry. The empirical <Term id="covariance-matrix">covariance matrices</Term> are virtually indistinguishable within minor random sampling noise:
 
 $$
 \begin{aligned}
@@ -82,7 +83,7 @@ $$
 \end{aligned}
 $$
 
-The joint observational probability distributions are identical. If you train a highly sophisticated predictive model on either dataset to estimate $P(Z \mid X, Y)$, both models will minimize empirical risk perfectly and provide identical, flawless predictions. But look at what happens when you intervene. If you use Pearl's `do`-operator to physically manipulate $Y$ (forcing $Y = 2.0$), World A propagates this change downstream to $Z$, yielding $\mathbb{E}[Z \mid do(Y=2.0)] = -2.999$ (matching the expected theoretical value of $-3.000$). World B does not ($\mathbb{E}[Z \mid do(Y=2.0)] = -0.005 \approx 0.000$), because $Y$ is a consequence of $Z$ in that world, not its master.
+The joint observational probability distributions are identical. If you train a highly sophisticated predictive model on either dataset to estimate $P(Z \mid X, Y)$, both models will minimize <Term id="erm">empirical risk</Term> perfectly and provide identical, flawless predictions. But look at what happens when you intervene. If you use Pearl's <Term id="do-operator">`do`-operator</Term> to physically manipulate $Y$ (forcing $Y = 2.0$), World A propagates this change downstream to $Z$, yielding $\mathbb{E}[Z \mid do(Y=2.0)] = -2.999$ (matching the expected theoretical value of $-3.000$). World B does not ($\mathbb{E}[Z \mid do(Y=2.0)] = -0.005 \approx 0.000$), because $Y$ is a consequence of $Z$ in that world, not its master.
 
 Conversely, intervening on $Y$ affects $X$ in World B ($\mathbb{E}[X \mid do(Y=2.0)] = 1.886 \approx 1.892$), while leaving $X$ totally untouched in World A ($\mathbb{E}[X \mid do(Y=2.0)] = 0.003 \approx 0.000$).
 
@@ -94,9 +95,9 @@ The predictive model is utterly blind to this difference. It lives in a flat lan
 
 ## Representations Don't Mean Anything
 
-The internal state of a neural network is often celebrated as a "conceptual representation." But history keeps disabusing us of the idea that functional representation equals true reference. Philosopher Hilary Putnam famously illustrated this with his reference problem: symbols do not carry intrinsic meaning just because they successfully map to an external object.
+The internal state of a neural network is often celebrated as a "conceptual representation." But history keeps disabusing us of the idea that functional representation equals true reference. Philosopher Hilary Putnam famously illustrated this with <Term id="putnam-reference">his reference problem</Term>: symbols do not carry intrinsic meaning just because they successfully map to an external object.
 
-We see the tragedy of Putnam’s problem play out when training a **Variational Autoencoder (VAE)** or standard autoencoder on high-dimensional vectors. The network is tasked with finding the true latent factors of the world by minimizing the standard reconstruction objective function. Even with a perfect model, the bottleneck configuration is underdetermined:
+We see the tragedy of Putnam’s problem play out when training a <Term id="vae">**Variational Autoencoder (VAE)**</Term> or standard autoencoder on high-dimensional vectors. The network is tasked with finding the true latent factors of the world by minimizing the standard reconstruction objective function. Even with a perfect model, the bottleneck configuration is underdetermined:
 
 ```python
 # vae_representation.py
@@ -127,7 +128,7 @@ encoder_B = VAEEncoder()
 
 When we run these two autoencoders on identical vectors, both models converge to excellent reconstructions, with Model A achieving an MSE of **0.558** and Model B achieving an MSE of **0.356**. Yet, if you try to evaluate their latent architectures, you discover that their internal coordinate axes are completely rotated, reflected, and unidentifiable from one another.
 
-They do span the exact same low-dimensional manifold: a multivariate linear regression can predict Model B's latent Dimension 0 and Dimension 1 from Model A's latent space with stellar $R^2$ values of **0.942** and **0.964**. But on an axis-by-axis, neuron-by-neuron basis, the mapping is scrambled. There are no canonical "conceptual dimensions" of scale, rotation, or translation. There are only arbitrary coordinates of convenience.
+They do span the exact same <Term id="latent-manifold">low-dimensional manifold</Term>: a multivariate linear regression can predict Model B's latent Dimension 0 and Dimension 1 from Model A's latent space with stellar $R^2$ values of **0.942** and **0.964**. But on an axis-by-axis, neuron-by-neuron basis, the mapping is scrambled. There are no canonical "conceptual dimensions" of scale, rotation, or translation. There are only arbitrary coordinates of convenience.
 
 The network did not find the ground "truth" of the shape. It found *an* arrangement — one of an infinite number of arbitrary, scrambled configurations that satisfies the reconstruction bottleneck. There is something genuinely sad about a system with no determinate inner world. The representation does not point to reality; it points only to its own utility.
 </ScrollReveal>
@@ -137,7 +138,7 @@ The network did not find the ground "truth" of the shape. It found *an* arrangem
 
 ## Compression is Not Explanation
 
-Machine learning operates heavily on the principle of the **Minimum Description Length (MDL)**. The goal is elegant compression: find the shortest program or the tightest weight configuration that can reproduce the data. In the era of massive LLM scaling laws, we treat this compression as the ultimate proxy for intelligence.
+Machine learning operates heavily on the principle of the <Term id="mdl">**Minimum Description Length (MDL)**</Term>. The goal is elegant compression: find the shortest program or the tightest weight configuration that can reproduce the data. In the era of massive LLM scaling laws, we treat this compression as the ultimate proxy for intelligence.
 
 But compression merely finds statistical regularities. It is not explanation. Explanation requires constraints over *possible* worlds — it describes what *could not* have been, not just what currently is.
 
@@ -165,7 +166,7 @@ When a scaling experiment shows that a model requires billions of parameters to 
 
 ## The OOD Test — Prediction’s Reckoning
 
-The empirical heart of this argument is found in the phenomenon of **shortcut learning**, best illustrated by the famous **Colored MNIST** benchmark. Here, we build a neural network that achieves near-perfect training performance by identifying a spurious correlation, only to watch it collapse completely when the world shifts.
+The empirical heart of this argument is found in the phenomenon of <Term id="shortcut-learning">**shortcut learning**</Term>, best illustrated by the famous **Colored MNIST** benchmark. Here, we build a neural network that achieves near-perfect training performance by identifying a spurious correlation, only to watch it collapse completely when the world shifts.
 
 ```python
 # shortcut_learning.py
@@ -192,11 +193,11 @@ class SimpleCNN(nn.Module):
 
 <h3 class="analysis-title">The Deception of Success</h3>
 
-When you run this exact experiment, the convolutional network converges with a stunning **94.9%** training accuracy and **93.2%** in-distribution test accuracy. It appears to have mastered the abstract concept of bars and shapes. Yet, when evaluated on the Out-of-Distribution (OOD) test set where the color correlations are inverted, its accuracy collapses to exactly **4.8%**.
+When you run this exact experiment, the convolutional network converges with a stunning **94.9%** training accuracy and **93.2%** in-distribution test accuracy. It appears to have mastered the abstract concept of bars and shapes. Yet, when evaluated on the <Term id="ood">Out-of-Distribution (OOD)</Term> test set where the color correlations are inverted, its accuracy collapses to exactly **4.8%**.
 
 This is not a random coin flip ($50\%$). It is a systematic, predictable failure. The model has learned to cheat so thoroughly—relying on the color shortcut because color is mathematically simpler to compress than shape geometry—that when the cheat is inverted, it fails with absolute certainty. It uses color as an active negative predictor.
 
-Philosopher Karl Popper argued that scientific theories are validated by how well they survive severe, risky attempts at falsification. The model did not pass Popper’s test. The **88.4%** drop in performance is the exact moment the machine's "habit and hope" collides with an altered reality. It reveals that our system was blind the entire time it was succeeding.
+Philosopher Karl Popper argued that scientific theories are validated by how well they survive severe, risky attempts at <Term id="falsification">falsification</Term>. The model did not pass Popper’s test. The **88.4%** drop in performance is the exact moment the machine's "habit and hope" collides with an altered reality. It reveals that our system was blind the entire time it was succeeding.
 </ScrollReveal>
 
 <ScrollReveal>
@@ -204,9 +205,9 @@ Philosopher Karl Popper argued that scientific theories are validated by how wel
 
 ## We Can't Read Our Own Minds
 
-We often turn to the field of **Mechanistic Interpretability** to save us, hoping to peer into the black box and extract its logic. John Searle’s classic *Chinese Room* argument suggested that a system manipulating symbols lacks understanding because it blindly follows a rulebook. But mechanistic interpretability reveals a twist that Searle didn't anticipate: **the rulebook itself is illegible.**
+We often turn to the field of <Term id="mechanistic-interp">**Mechanistic Interpretability**</Term> to save us, hoping to peer into the black box and extract its logic. John Searle’s classic <Term id="chinese-room">*Chinese Room*</Term> argument suggested that a system manipulating symbols lacks understanding because it blindly follows a rulebook. But mechanistic interpretability reveals a twist that Searle didn't anticipate: **the rulebook itself is illegible.**
 
-When we examine the hidden representations of modern transformers, we find that individual neurons do not correspond to clean, isolated human concepts. Instead, they operate in a state of **superposition**, acting as polysemantic entities.
+When we examine the hidden representations of modern transformers, we find that individual neurons do not correspond to clean, isolated human concepts. Instead, they operate in a state of <Term id="superposition">**superposition**</Term>, acting as <Term id="polysemantic">polysemantic</Term> entities.
 
 ```python
 # superposition_simulation.py
@@ -227,9 +228,9 @@ Because the network compresses more features than it has physical dimensions, it
 
 ## The Intervention Gap — Pearl's Ladder
 
-The most formal, mathematically precise expression of the prediction-versus-understanding divide belongs to Judea Pearl and his **Ladder of Causation**. Pure prediction lives entirely on the first rung: Association. It estimates the conditional probability of $Y$ given $X$, written as $P(Y \mid X)$. True understanding requires moving to the second and third rungs: Intervention ($P(Y \mid \text{do}(X))$) and Counterfactuals.
+The most formal, mathematically precise expression of the prediction-versus-understanding divide belongs to Judea Pearl and his <Term id="ladder-of-causation">**Ladder of Causation**</Term>. Pure prediction lives entirely on the first rung: Association. It estimates the conditional probability of $Y$ given $X$, written as $P(Y \mid X)$. True understanding requires moving to the second and third rungs: Intervention ($P(Y \mid \text{do}(X))$) and Counterfactuals.
 
-We can see this gap clearly in experiments using the **IHDP (Infant Health and Development Program)** dataset, a standard benchmark for causal inference.
+We can see this gap clearly in experiments using the <Term id="ihdp">**IHDP (Infant Health and Development Program)**</Term> dataset, a standard benchmark for causal inference.
 
 ```python
 # intervention_gap.py
@@ -250,7 +251,7 @@ y = 2.0 * x + 35.0 * w + np.random.normal(0, 0.1, size=10000)
 
 If you run this simulation, the naive predictive estimator outputs a negative coefficient of **-1.546** for the treatment variable $X$. The model concludes that infants who receive the treatment have *worse* health outcomes than those who do not. It predicts the historical data beautifully, yet it completely fails to calculate individual treatment effects.
 
-Why? Because it confounds selection bias with true causal impact. It confuses the circumstances under which a doctor *chooses* to give a treatment (sicker infants get treated) with the *mechanistic effect* of the treatment itself. When we adjust for the baseline health confounder $W$, the coefficient immediately corrects to **2.001**, matching the true causal treatment effect of **2.000** almost perfectly.
+Why? Because it confounds selection bias with true causal impact. It confuses the circumstances under which a doctor *chooses* to give a treatment (sicker infants get treated) with the *mechanistic effect* of the treatment itself. When we adjust for the baseline health <Term id="confounding">confounder</Term> $W$, the coefficient immediately corrects to **2.001**, matching the true causal treatment effect of **2.000** almost perfectly.
 
 Without the explicit mathematical framework of the $\text{do}$-operator, a model cannot bridge this gap. It remains trapped on the bottom rung, observing everything and controlling nothing.
 </ScrollReveal>
@@ -280,7 +281,7 @@ But it is incomplete.
 
 To understand is to explain why the compression remains stable when the world shifts. And that question — why does it hold, and when will it break — is the one our most powerful systems cannot answer about themselves.
 
-Machine learning did not solve philosophy. **It institutionalized it.** It took our oldest, unresolved wounds — Hume's problem of induction, Putnam's problem of reference, Duhem-Quine's underdetermination — and coded them directly into Python libraries.
+Machine learning did not solve philosophy. **It institutionalized it.** It took our oldest, unresolved wounds — <Term id="hume-induction">Hume's problem of induction</Term>, Putnam's problem of reference, Duhem-Quine's underdetermination — and coded them directly into Python libraries.
 
 We have built systems that know everything and understand nothing, and we stand before them completely unsure of what to feel. That uncertainty is the most human thing about this moment. We are very good at not knowing what we do not know. The machines have learned that from us too.
 </div>

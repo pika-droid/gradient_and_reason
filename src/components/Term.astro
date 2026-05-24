@@ -1,0 +1,124 @@
+---
+import { glossary } from '../data/glossary';
+
+interface Props {
+  id: string;
+}
+
+const { id } = Astro.props;
+const entry = glossary[id];
+---
+
+{entry ? (
+  <span class="term-trigger" data-term-id={id} tabindex="0">
+    <slot />
+    <span class="term-tooltip" role="tooltip" aria-hidden="true">
+      <span class="term-name">{entry.term}</span>
+      <span class="term-def">{entry.def}</span>
+      <span class="term-footer">
+        <a href={entry.url} target="_blank" rel="noopener noreferrer" class="term-link" onclick="event.stopPropagation();">
+          Read more <span class="arrow">→</span>
+        </a>
+      </span>
+    </span>
+  </span>
+) : (
+  <slot />
+)}
+
+<script>
+  // Mobile touch toggle behavior and viewport alignment for glossary terms
+  document.addEventListener('DOMContentLoaded', () => {
+    let activeTrigger: HTMLElement | null = null;
+
+    // Handle clicks/taps on term triggers
+    document.addEventListener('click', (e) => {
+      const target = e.target as HTMLElement;
+      
+      // If clicking inside a tooltip (like the link), let it function normally
+      if (target.closest('.term-tooltip')) {
+        return;
+      }
+
+      const trigger = target.closest('.term-trigger') as HTMLElement;
+
+      if (trigger) {
+        // Toggle behavior
+        e.stopPropagation();
+        
+        if (activeTrigger && activeTrigger !== trigger) {
+          activeTrigger.classList.remove('active');
+          activeTrigger.querySelector('.term-tooltip')?.setAttribute('aria-hidden', 'true');
+        }
+
+        const tooltip = trigger.querySelector('.term-tooltip');
+        if (trigger.classList.contains('active')) {
+          trigger.classList.remove('active');
+          tooltip?.setAttribute('aria-hidden', 'true');
+          activeTrigger = null;
+        } else {
+          trigger.classList.add('active');
+          tooltip?.setAttribute('aria-hidden', 'false');
+          activeTrigger = trigger;
+          
+          if (tooltip) {
+            adjustTooltipPosition(tooltip as HTMLElement);
+          }
+        }
+      } else {
+        // Clicked outside, close any active tooltip
+        if (activeTrigger) {
+          activeTrigger.classList.remove('active');
+          activeTrigger.querySelector('.term-tooltip')?.setAttribute('aria-hidden', 'true');
+          activeTrigger = null;
+        }
+      }
+    });
+
+    // Close on Escape key
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && activeTrigger) {
+        activeTrigger.classList.remove('active');
+        activeTrigger.querySelector('.term-tooltip')?.setAttribute('aria-hidden', 'true');
+        activeTrigger = null;
+      }
+    });
+
+    // Helper to keep tooltip inside the viewport horizontally
+    function adjustTooltipPosition(tooltip: HTMLElement) {
+      // Reset styles to default state before measuring
+      tooltip.style.left = '';
+      tooltip.style.setProperty('--caret-left', '50%');
+      
+      requestAnimationFrame(() => {
+        const rect = tooltip.getBoundingClientRect();
+        const viewportWidth = window.innerWidth;
+        const padding = 12; // Minimum padding from edge of screen
+        
+        let offset = 0;
+        if (rect.left < padding) {
+          offset = padding - rect.left;
+        } else if (rect.right > viewportWidth - padding) {
+          offset = (viewportWidth - padding) - rect.right;
+        }
+        
+        if (offset !== 0) {
+          // Adjust tooltip box position
+          tooltip.style.left = `calc(50% + ${offset}px)`;
+          // Adjust caret arrow position back so it continues to align with term trigger center
+          tooltip.style.setProperty('--caret-left', `calc(50% - ${offset}px)`);
+        }
+      });
+    }
+
+    // Optional: Recalculate if window is resized while tooltip is open
+    window.addEventListener('resize', () => {
+      if (activeTrigger) {
+        const tooltip = activeTrigger.querySelector('.term-tooltip');
+        if (tooltip) {
+          adjustTooltipPosition(tooltip as HTMLElement);
+        }
+      }
+    });
+  });
+</script>
