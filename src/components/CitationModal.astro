@@ -1,0 +1,201 @@
+---
+---
+
+<div
+  id="citation-modal"
+  class="fixed inset-0 z-[100] hidden bg-bg/90 backdrop-blur-sm flex items-center justify-center p-4 transition-all duration-300 select-none"
+>
+  <div class="bg-surface border border-ink-faint w-full max-w-[620px] p-8 flex flex-col gap-6 relative transition-colors duration-300">
+    <button
+      id="close-citation"
+      class="absolute top-4 right-4 text-ink-dim hover:text-ink-strong uppercase text-[0.62rem] font-garamond tracking-widest transition-colors duration-200"
+    >
+      [Close]
+    </button>
+    
+    <div class="flex flex-col gap-1">
+      <h3 class="font-garamond text-xl text-ink-strong">Cite this Archive</h3>
+      <p class="text-xs text-ink-dim font-literata font-light">If you find these computational essays helpful in your work, please use the references below.</p>
+    </div>
+
+    <!-- APA Citation -->
+    <div class="flex flex-col gap-2">
+      <div class="flex items-center justify-between">
+        <span class="type-label text-[0.62rem] text-accent tracking-[0.15em]">APA 7</span>
+        <button 
+          id="copy-apa" 
+          class="text-ink-dim hover:text-ink-strong uppercase text-[0.55rem] font-mono tracking-widest transition-colors duration-150 py-0.5 px-1.5 border border-ink-faint/50 bg-bg/50 hover:bg-surface-raised cursor-pointer"
+        >
+          Copy
+        </button>
+      </div>
+      <div id="citation-apa" class="font-literata text-xs text-ink bg-bg p-3 border border-code-border select-all select-text">
+        Loading...
+      </div>
+    </div>
+
+    <!-- Chicago Style -->
+    <div class="flex flex-col gap-2">
+      <div class="flex items-center justify-between">
+        <span class="type-label text-[0.62rem] text-accent tracking-[0.15em]">Chicago</span>
+        <button 
+          id="copy-chicago" 
+          class="text-ink-dim hover:text-ink-strong uppercase text-[0.55rem] font-mono tracking-widest transition-colors duration-150 py-0.5 px-1.5 border border-ink-faint/50 bg-bg/50 hover:bg-surface-raised cursor-pointer"
+        >
+          Copy
+        </button>
+      </div>
+      <div id="citation-chicago" class="font-literata text-xs text-ink bg-bg p-3 border border-code-border select-all select-text">
+        Loading...
+      </div>
+    </div>
+
+    <!-- BibTeX Citation -->
+    <div class="flex flex-col gap-2">
+      <div class="flex items-center justify-between">
+        <span class="type-label text-[0.62rem] text-accent tracking-[0.15em]">BibTeX</span>
+        <button 
+          id="copy-bibtex" 
+          class="text-ink-dim hover:text-ink-strong uppercase text-[0.55rem] font-mono tracking-widest transition-colors duration-150 py-0.5 px-1.5 border border-ink-faint/50 bg-bg/50 hover:bg-surface-raised cursor-pointer"
+        >
+          Copy
+        </button>
+      </div>
+      <pre class="bg-bg border border-code-border p-3 overflow-x-auto select-all select-text"><code id="citation-bibtex" class="font-mono text-[0.72rem] text-code-txt select-all select-text leading-normal">Loading...</code></pre>
+    </div>
+  </div>
+</div>
+
+<script>
+  const initCitation = () => {
+    const modal = document.getElementById('citation-modal');
+    const closeBtn = document.getElementById('close-citation');
+
+    if (!modal || !closeBtn) return;
+
+    // Helper to generate dynamic citations
+    const updateCitations = () => {
+      const canonicalLink = document.querySelector('link[rel="canonical"]');
+      const url = canonicalLink ? (canonicalLink as HTMLLinkElement).href : window.location.href;
+      
+      // Clean title: remove site name suffix
+      let title = document.title;
+      if (title.includes(' — ')) {
+        title = title.split(' — ')[0];
+      }
+      
+      const year = new Date().getFullYear();
+      const isEssay = window.location.pathname.startsWith('/essays/') && window.location.pathname !== '/essays/';
+      
+      let apa = '';
+      let chicago = '';
+      let bibtex = '';
+      
+      if (isEssay && title !== 'Essays') {
+        apa = `Mandal, A. (${year}). ${title}. Gradient and Reason. Retrieved from ${url}`;
+        chicago = `Mandal, Ashmit. "${title}." Gradient and Reason. ${year}. ${url}.`;
+        const bibKey = `mandal${year}${title.toLowerCase().replace(/[^a-z0-9]/g, '').slice(0, 8)}`;
+        bibtex = `@misc{${bibKey},
+  author = {Mandal, Ashmit},
+  title = {${title}},
+  year = {${year}},
+  howpublished = {\\url{${url}}},
+  note = {Gradient and Reason}
+}`;
+      } else {
+        apa = `Mandal, A. (${year}). Gradient and Reason: On Machine Knowledge & Philosophical Loss. Retrieved from ${url}`;
+        chicago = `Mandal, Ashmit. "Gradient and Reason: On Machine Knowledge & Philosophical Loss." ${year}. ${url}.`;
+        bibtex = `@misc{mandal${year}gradient,
+  author = {Mandal, Ashmit},
+  title = {Gradient and Reason: On Machine Knowledge \\& Philosophical Loss},
+  year = {${year}},
+  howpublished = {\\url{${url}}},
+  note = {Computational essays on epistemology and machine learning}
+}`;
+      }
+      
+      const apaEl = document.getElementById('citation-apa');
+      const chicagoEl = document.getElementById('citation-chicago');
+      const bibtexEl = document.getElementById('citation-bibtex');
+      
+      if (apaEl) apaEl.innerText = apa;
+      if (chicagoEl) chicagoEl.innerText = chicago;
+      if (bibtexEl) bibtexEl.innerText = bibtex;
+    };
+
+    const openModal = (e: Event) => {
+      e.preventDefault();
+      updateCitations();
+      modal.classList.remove('hidden');
+      document.body.classList.add('overflow-hidden');
+    };
+
+    const closeModal = () => {
+      modal.classList.add('hidden');
+      document.body.classList.remove('overflow-hidden');
+    };
+
+    // Also support triggering from footer link
+    const footerTrigger = document.querySelector('a[href="#cite"]');
+    if (footerTrigger) {
+      // Remove old inline onclick attribute if it exists
+      footerTrigger.removeAttribute('onclick');
+      // Remove previous listener to avoid multiple fires
+      footerTrigger.removeEventListener('click', openModal);
+      footerTrigger.addEventListener('click', openModal);
+    }
+
+    closeBtn.removeEventListener('click', closeModal);
+    closeBtn.addEventListener('click', closeModal);
+
+    // Keyboard controls
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        closeModal();
+      }
+    };
+    window.removeEventListener('keydown', handleKeyDown);
+    window.addEventListener('keydown', handleKeyDown);
+
+    // Click outside to close
+    modal.removeEventListener('click', closeModal);
+    modal.addEventListener('click', (e) => {
+      if (e.target === modal) {
+        closeModal();
+      }
+    });
+
+    // Clipboard copy functionality
+    const setupCopy = (btnId: string, textElId: string) => {
+      const btn = document.getElementById(btnId);
+      const textEl = document.getElementById(textElId);
+      if (!btn || !textEl) return;
+
+      const handleCopy = async () => {
+        const text = textEl.innerText || textEl.textContent || '';
+        try {
+          await navigator.clipboard.writeText(text);
+          btn.innerText = 'Copied';
+          btn.classList.add('text-accent');
+          setTimeout(() => {
+            btn.innerText = 'Copy';
+            btn.classList.remove('text-accent');
+          }, 2000);
+        } catch (err) {
+          console.error('Failed to copy text: ', err);
+        }
+      };
+      
+      btn.removeEventListener('click', handleCopy);
+      btn.addEventListener('click', handleCopy);
+    };
+
+    setupCopy('copy-apa', 'citation-apa');
+    setupCopy('copy-chicago', 'citation-chicago');
+    setupCopy('copy-bibtex', 'citation-bibtex');
+  };
+
+  initCitation();
+  // Support Astro View Transitions
+  document.addEventListener('astro:after-swap', initCitation);
+</script>

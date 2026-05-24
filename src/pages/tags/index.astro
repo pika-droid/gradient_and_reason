@@ -2,7 +2,6 @@
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import ScrollReveal from '../../components/ScrollReveal.astro';
 import SectionLabel from '../../components/SectionLabel.astro';
-import SearchModal from '../../components/SearchModal.astro';
 import { getCollection } from 'astro:content';
 
 const posts = await getCollection('blog');
@@ -47,5 +46,4 @@ const tags = [...new Set(posts.flatMap(post => post.data.tags || []))].sort();
     </ScrollReveal>
   </div>
 
-  <SearchModal />
 </BaseLayout>

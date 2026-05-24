@@ -3,7 +3,6 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
 import ScrollReveal from '../../components/ScrollReveal.astro';
 import SectionLabel from '../../components/SectionLabel.astro';
 import EssayCard from '../../components/EssayCard.astro';
-import SearchModal from '../../components/SearchModal.astro';
 import { getCollection } from 'astro:content';
 
 export async function getStaticPaths() {
@@ -55,5 +54,4 @@ const { posts } = Astro.props;
     </ScrollReveal>
   </div>
 
-  <SearchModal />
 </BaseLayout>
