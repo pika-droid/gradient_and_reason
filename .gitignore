@@ -22,3 +22,9 @@ pnpm-debug.log*
 
 # jetbrains setting folder
 .idea/
+
+# Agent skills and reference documents
+.gemini/
+skills/
+reference/
+references/
