@@ -38,15 +38,36 @@ const today = new Date();
         <span class="type-label text-[0.62rem] text-accent tracking-[0.2em] md:text-right">
           LINKS & ACTIONS
         </span>
-        <div class="flex flex-col gap-2 text-[0.68rem] font-garamond tracking-[0.15em] text-ink-dim uppercase md:items-end">
-          <a href="/rss.xml" target="_blank" class="hover:text-ink-strong transition-colors duration-200">
-            RSS Feed
+        <div class="flex flex-col gap-2.5 text-[0.68rem] font-garamond tracking-[0.18em] uppercase md:items-end">
+          <a 
+            href="/rss.xml" 
+            target="_blank" 
+            class="relative group py-0.5 no-underline text-accent hover:text-ink-strong transition-colors duration-300"
+          >
+            <span class="inline-block transition-all duration-300 ease-out group-hover:tracking-[0.22em]">
+              RSS Feed
+            </span>
+            <span class="absolute bottom-0 left-1/2 -translate-x-1/2 w-0 h-[1px] bg-accent/60 transition-all duration-300 group-hover:w-full"></span>
           </a>
-          <a href="https://github.com" target="_blank" class="hover:text-ink-strong transition-colors duration-200">
-            Source Code
+          <a 
+            href="https://github.com" 
+            target="_blank" 
+            class="relative group py-0.5 no-underline text-accent hover:text-ink-strong transition-colors duration-300"
+          >
+            <span class="inline-block transition-all duration-300 ease-out group-hover:tracking-[0.22em]">
+              Source Code
+            </span>
+            <span class="absolute bottom-0 left-1/2 -translate-x-1/2 w-0 h-[1px] bg-accent/60 transition-all duration-300 group-hover:w-full"></span>
           </a>
-          <a href="#cite" class="hover:text-ink-strong transition-colors duration-200" onclick="alert('Citation format:\n\nGradient and Reason. (2026). On Machine Knowledge & Philosophical Loss. https://gradientandreason.com')">
-            Cite this site
+          <a 
+            href="#cite" 
+            class="relative group py-0.5 no-underline text-accent hover:text-ink-strong transition-colors duration-300"
+            onclick="alert('Citation format:\n\nGradient and Reason. (2026). On Machine Knowledge & Philosophical Loss. https://gradientandreason.com')"
+          >
+            <span class="inline-block transition-all duration-300 ease-out group-hover:tracking-[0.22em]">
+              Cite this site
+            </span>
+            <span class="absolute bottom-0 left-1/2 -translate-x-1/2 w-0 h-[1px] bg-accent/60 transition-all duration-300 group-hover:w-full"></span>
           </a>
         </div>
       </div>

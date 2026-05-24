@@ -1,7 +1,6 @@
 ---
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import ScrollReveal from '../../components/ScrollReveal.astro';
-import SectionLabel from '../../components/SectionLabel.astro';
 import EssayCard from '../../components/EssayCard.astro';
 import SearchModal from '../../components/SearchModal.astro';
 import { getCollection, render } from 'astro:content';
@@ -11,14 +10,28 @@ const allPosts = (await getCollection('blog'))
   .sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf());
 
 const posts = await Promise.all(
-  allPosts.map(async (post) => {
+  allPosts.map(async (post, idx) => {
     const rendered = await render(post);
     return {
       ...post,
-      readingTime: rendered.remarkPluginFrontmatter.readingTime
+      readingTime: rendered.remarkPluginFrontmatter.readingTime,
+      globalIndex: idx + 1
     };
   })
 );
+
+// Group posts by publication year
+const postsByYear = posts.reduce((acc, post) => {
+  const year = new Date(post.data.date).getFullYear().toString();
+  if (!acc[year]) {
+    acc[year] = [];
+  }
+  acc[year].push(post);
+  return acc;
+}, {} as Record<string, typeof posts>);
+
+// Sort years descending
+const years = Object.keys(postsByYear).sort((a, b) => b.localeCompare(a));
 ---
 
 <BaseLayout
@@ -30,31 +43,46 @@ const posts = await Promise.all(
       <div class="mb-16">
         <p class="type-kicker text-ink-dim mb-4">Archive</p>
         <h1 class="font-garamond text-4xl md:text-5xl font-light text-ink-strong leading-tight">
-          Featured Essays
+          Essays
         </h1>
-        <div class="w-10 h-[1px] bg-accent-pale my-8"></div>
+        <div class="w-10 h-[1px] bg-accent-pale mt-8 mb-4"></div>
+        <p class="type-label text-ink-dim/60">
+          {posts.length} {posts.length === 1 ? 'entry' : 'entries'} in the archive
+        </p>
       </div>
     </ScrollReveal>
 
-    <ScrollReveal>
-      <SectionLabel label="All Articles" />
-      <div class="flex flex-col gap-4">
-        {posts.length > 0 ? (
-          posts.map(post => (
-            <EssayCard
-              title={post.data.title}
-              description={post.data.description}
-              slug={post.id}
-              date={post.data.date}
-              readingTime={post.readingTime}
-            />
-          ))
-        ) : (
-          <p class="font-literata font-light text-sm text-ink-dim">No essays published yet.</p>
-        )}
-      </div>
-    </ScrollReveal>
+    {posts.length > 0 ? (
+      years.map(year => (
+        <ScrollReveal>
+          <div class="mb-16 last:mb-0">
+            <div class="archive-year mb-8 flex items-center gap-4">
+              <span>{year}</span>
+              <div class="flex-grow h-[1px] bg-ink-faint"></div>
+            </div>
+            <div class="flex flex-col gap-4">
+              {postsByYear[year].map(post => (
+                <EssayCard
+                  title={post.data.title}
+                  description={post.data.description}
+                  slug={post.id}
+                  date={post.data.date}
+                  readingTime={post.readingTime}
+                  tags={post.data.tags}
+                  index={post.globalIndex}
+                />
+              ))}
+            </div>
+          </div>
+        </ScrollReveal>
+      ))
+    ) : (
+      <ScrollReveal>
+        <p class="font-literata font-light text-sm text-ink-dim">No essays published yet.</p>
+      </ScrollReveal>
+    )}
   </div>
 
   <SearchModal />
 </BaseLayout>
+

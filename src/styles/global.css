@@ -462,3 +462,31 @@ pre.astro-code {
   transform: translateX(3px);
 }
 
+/* Essay Redesign Styles */
+.essay-tag {
+  font-family: 'EB Garamond', Georgia, serif;
+  font-size: 0.62rem;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--ink-dim);
+  border: 1px solid var(--ink-faint);
+  padding: 0.15rem 0.5rem;
+  border-radius: 4px;
+  display: inline-block;
+  transition: all 0.2s ease;
+}
+
+.essay-tag:hover {
+  color: var(--ink);
+  border-color: var(--accent-pale);
+}
+
+.archive-year {
+  font-family: 'EB Garamond', Georgia, serif;
+  font-size: 1.15rem;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--accent);
+}
+
+

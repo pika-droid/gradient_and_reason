@@ -5,32 +5,48 @@ interface Props {
   slug: string;
   date: Date;
   readingTime?: string;
+  tags?: string[];
+  index?: number;
 }
 
-const { title, description, slug, date, readingTime } = Astro.props;
+const { title, description, slug, date, readingTime, tags, index } = Astro.props;
 
 const formattedDate = new Date(date).toLocaleDateString('en-US', {
   year: 'numeric',
   month: 'long',
   day: 'numeric'
 });
+
+const paddedIndex = index !== undefined ? String(index).padStart(2, '0') : undefined;
 ---
 
-<div class="mb-10 group">
-  <a href={`/essays/${slug}`} class="block no-underline">
+<div class="pb-8 mb-8 border-b border-ink-faint last:pb-0 last:mb-0 last:border-b-0 group">
+  <a href={`/essays/${slug}`} class="block no-underline hover:no-underline">
     <!-- Date & Reading Time label -->
     <span class="type-label text-[0.62rem] text-ink-dim/60 block mb-2 transition-colors duration-300">
+      {paddedIndex && <span class="text-accent/80 mr-2">{paddedIndex} //</span>}
       {formattedDate} {readingTime && `· ${readingTime}`}
     </span>
     
     <!-- Title -->
     <h3 class="font-garamond text-xl md:text-2xl font-light text-ink-strong group-hover:text-accent transition-colors duration-200 leading-tight mb-2">
-      {title}
+      <span class="group-hover:underline decoration-accent/30 underline-offset-4 decoration-1">{title}</span>
+      <span class="inline-block text-accent opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-300 ease-out ml-1">→</span>
     </h3>
     
     <!-- Description -->
-    <p class="font-literata font-light text-sm leading-relaxed text-ink-dim group-hover:text-ink transition-colors duration-200">
+    <p class="font-literata font-light text-sm leading-relaxed text-ink-dim group-hover:text-ink transition-colors duration-200 mb-3">
       {description}
     </p>
+
+    <!-- Tags -->
+    {tags && tags.length > 0 && (
+      <div class="flex flex-wrap gap-2 mt-3">
+        {tags.map((tag) => (
+          <span class="essay-tag">{tag}</span>
+        ))}
+      </div>
+    )}
   </a>
 </div>
+
