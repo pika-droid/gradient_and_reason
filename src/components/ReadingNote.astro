@@ -1,15 +1,102 @@
 ---
+import { quotes } from '../data/quotes';
+
 interface Props {
-  quote: string;
-  author: string;
+  quote?: string;
+  author?: string;
 }
 
-const { quote, author } = Astro.props;
+const hasExplicitProps = Astro.props.quote !== undefined && Astro.props.author !== undefined;
+
+// Pick a random fallback quote for build time (static output/no-JS fallback)
+const buildTimeIndex = Math.floor(Math.random() * quotes.length);
+const buildTimeQuote = quotes[buildTimeIndex] || { quote: "Custom, then, is the great guide of human life.", author: "David Hume" };
+
+const {
+  quote = buildTimeQuote.quote,
+  author = buildTimeQuote.author
+} = Astro.props;
 ---
 
-<div class="mb-10 reveal-item">
-  <blockquote class="border-l border-accent-pale pl-8 my-4 font-garamond italic text-[1.15rem] text-ink-dim leading-relaxed">
-    "{quote}"
-  </blockquote>
-  <p class="type-label text-[0.62rem] text-ink-dim pl-8">— {author}</p>
+<div class="mb-10 reveal-item reading-note group relative" data-random={!hasExplicitProps ? "true" : "false"}>
+  <div class="quote-content transition-opacity duration-300 ease-in-out">
+    <blockquote class="quote-text border-l border-accent-pale pl-8 my-4 font-garamond italic text-[1.15rem] text-ink-dim leading-relaxed select-none">
+      "{quote}"
+    </blockquote>
+    <div class="flex items-center gap-3 pl-8">
+      <span class="quote-author type-label text-[0.62rem] text-ink-dim">— {author}</span>
+      
+      {!hasExplicitProps && (
+        <button
+          class="quote-shuffle-btn p-1 rounded-full text-ink-faint hover:text-ink-strong hover:bg-ink-faint/10 opacity-60 sm:opacity-0 group-hover:opacity-100 transition-all duration-300 cursor-pointer focus:opacity-100 focus:outline-none"
+          aria-label="Roll another quote"
+        >
+          <svg class="w-3.5 h-3.5 transition-transform duration-500 hover:rotate-180" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182m0-4.991v4.99" />
+          </svg>
+        </button>
+      )}
+    </div>
+  </div>
 </div>
+
+<script>
+  import { quotes } from '../data/quotes';
+
+  function initQuotes() {
+    const randomNotes = document.querySelectorAll('.reading-note[data-random="true"]');
+    
+    randomNotes.forEach((note) => {
+      const quoteTextEl = note.querySelector('.quote-text');
+      const quoteAuthorEl = note.querySelector('.quote-author');
+      const contentEl = note.querySelector('.quote-content');
+      const shuffleBtn = note.querySelector('.quote-shuffle-btn');
+      
+      let lastIndex = -1;
+
+      // Track the initial build-time quote text to avoid immediate duplication
+      const initialQuoteText = quoteTextEl?.textContent?.replace(/^"|"$/g, '') || '';
+      lastIndex = quotes.findIndex(q => q.quote === initialQuoteText);
+
+      function updateQuote(isInitial = false) {
+        if (!quoteTextEl || !quoteAuthorEl || !contentEl || quotes.length === 0) return;
+        
+        let randomIndex;
+        // Avoid selecting the exact same quote twice in a row if possible
+        do {
+          randomIndex = Math.floor(Math.random() * quotes.length);
+        } while (randomIndex === lastIndex && quotes.length > 1);
+        
+        lastIndex = randomIndex;
+        const selected = quotes[randomIndex];
+        
+        if (isInitial) {
+          // Immediately swap on page load to guarantee a fresh random quote on every refresh
+          quoteTextEl.textContent = `"${selected.quote}"`;
+          quoteAuthorEl.textContent = `— ${selected.author}`;
+        } else {
+          // Fade-out and fade-in transition on manual click
+          contentEl.classList.add('opacity-0');
+          setTimeout(() => {
+            quoteTextEl.textContent = `"${selected.quote}"`;
+            quoteAuthorEl.textContent = `— ${selected.author}`;
+            contentEl.classList.remove('opacity-0');
+          }, 300);
+        }
+      }
+
+      // Roll a random one immediately on script execution to ensure it differs from build time
+      updateQuote(true);
+
+      // Hook up interactive click behavior
+      if (shuffleBtn) {
+        shuffleBtn.addEventListener('click', () => updateQuote(false));
+      }
+    });
+  }
+
+  // Initial load
+  initQuotes();
+  // Support Astro View Transitions
+  document.addEventListener('astro:after-swap', initQuotes);
+</script>
