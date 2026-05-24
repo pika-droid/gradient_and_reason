@@ -8,14 +8,14 @@ const currentPath = Astro.url.pathname;
   <div class="max-w-[1200px] mx-auto px-6 py-4 flex items-center justify-between">
     <!-- Brand Wordmark -->
     <a href="/" class="group flex flex-col">
-      <span class="font-garamond text-lg font-medium tracking-[0.25em] text-ink-strong group-hover:text-accent transition-colors duration-200 uppercase">
+      <span class="font-garamond text-sm sm:text-base md:text-lg font-medium tracking-[0.12em] sm:tracking-[0.25em] text-ink-strong group-hover:text-accent transition-colors duration-200 uppercase">
         Gradient and Reason
       </span>
     </a>
 
     <!-- Nav Menu & Actions -->
-    <nav class="flex items-center gap-6 md:gap-8">
-      <div class="hidden sm:flex items-center gap-6 md:gap-8 text-xs font-garamond tracking-widest uppercase">
+    <nav class="flex items-center gap-4 sm:gap-6 md:gap-8">
+      <div class="flex items-center gap-4 sm:gap-6 md:gap-8 text-[0.65rem] sm:text-xs font-garamond tracking-widest uppercase">
         <a
           href="/essays"
           class={`transition-colors duration-200 ${

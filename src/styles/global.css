@@ -48,11 +48,20 @@
     color: var(--ink);
     font-family: 'Literata', Georgia, serif;
     font-weight: 300;
-    font-size: 18px;
-    line-height: 1.9;
+    font-size: 16px;
+    line-height: 1.8;
     min-height: 100vh;
     position: relative;
     transition: background-color 0.3s ease, color 0.3s ease;
+    overflow-wrap: break-word;
+    word-break: break-word;
+  }
+
+  @media (min-width: 768px) {
+    body {
+      font-size: 18px;
+      line-height: 1.9;
+    }
   }
 
   /* SVG Grain Overlay */
@@ -101,7 +110,7 @@
 /* Custom Typography & Utility Classes */
 .type-display {
   font-family: 'EB Garamond', Georgia, serif;
-  font-size: clamp(2.6rem, 6vw, 3.8rem);
+  font-size: clamp(2rem, 6vw, 3.8rem);
   font-weight: 300;
   line-height: 1.12;
   letter-spacing: -0.01em;
@@ -162,6 +171,9 @@
 .prose {
   max-width: 740px;
   margin: 0 auto;
+  width: 100%;
+  overflow-wrap: break-word;
+  word-break: break-word;
 }
 
 .prose p {
@@ -175,8 +187,14 @@
 
 .prose h2 {
   @apply type-h2;
-  margin-top: 6rem;
+  margin-top: 3.5rem;
   margin-bottom: 1.8rem;
+}
+
+@media (min-width: 768px) {
+  .prose h2 {
+    margin-top: 6rem;
+  }
 }
 
 .prose h3.analysis-title {
@@ -227,11 +245,17 @@ pre.astro-code {
 .spectrum-container {
   width: 100%;
   overflow-x: auto;
-  margin: 3.5rem 0;
+  margin: 2rem 0;
   border: 1px solid var(--code-border);
   border-radius: 8px;
   background-color: var(--surface);
   transition: border-color 0.3s ease, background-color 0.3s ease;
+}
+
+@media (min-width: 768px) {
+  .spectrum-container {
+    margin: 3.5rem 0;
+  }
 }
 
 .spectrum-container table {
@@ -250,17 +274,29 @@ pre.astro-code {
   color: var(--accent);
   border-bottom: 1px solid var(--code-border);
   background-color: var(--bg);
-  padding: 1.1rem 1.25rem;
+  padding: 0.8rem 1rem;
   text-align: left;
   font-weight: 500;
 }
 
+@media (min-width: 768px) {
+  .spectrum-container th {
+    padding: 1.1rem 1.25rem;
+  }
+}
+
 .spectrum-container td {
-  padding: 1.5rem 1.25rem;
+  padding: 1rem 1rem;
   border-bottom: 1px solid var(--code-border);
   color: var(--ink-dim);
   vertical-align: top;
   transition: color 0.2s ease;
+}
+
+@media (min-width: 768px) {
+  .spectrum-container td {
+    padding: 1.5rem 1.25rem;
+  }
 }
 
 .spectrum-container tr:last-child td {
@@ -278,6 +314,12 @@ pre.astro-code {
   font-size: 0.95rem;
   width: 22%;
   padding-left: 1.25rem;
+}
+
+@media (min-width: 768px) {
+  .spectrum-container tr td:first-child {
+    padding-left: 1.25rem;
+  }
 }
 
 .spectrum-container td strong {
