@@ -9,7 +9,7 @@ const { id, triggerLabel } = Astro.props;
 
 <div class="lab-trigger-container">
   <button class="lab-trigger-btn" id={`trigger-${id}`} data-target={`panel-${id}`}>
-    <span>🔬 {triggerLabel}</span>
+    <span>{triggerLabel}</span>
     <span class="icon">+</span>
   </button>
   <div class="lab-panel" id={`panel-${id}`}>
