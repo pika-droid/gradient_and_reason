@@ -1,0 +1,122 @@
+---
+interface Props {
+  tabs: string[];
+}
+
+const { tabs } = Astro.props;
+---
+
+<div class="code-tabs-container my-10 border border-code-border rounded-lg overflow-hidden bg-code-bg shadow-sm transition-colors duration-300 w-full max-w-full" data-tabs={JSON.stringify(tabs)}>
+  <div class="code-header flex items-center justify-between px-4 py-3 bg-surface/50 border-b border-code-border select-none flex-wrap gap-2">
+    <div class="flex items-center gap-1.5">
+      <span class="w-3 h-3 rounded-full bg-[#ff5f56]/90"></span>
+      <span class="w-3 h-3 rounded-full bg-[#ffbd2e]/90"></span>
+      <span class="w-3 h-3 rounded-full bg-[#27c93f]/90"></span>
+    </div>
+    <div class="flex gap-1.5 code-switcher-tabs">
+      {tabs.map((tab: string, idx: number) => (
+        <button
+          type="button"
+          class={`code-tab-btn px-2.5 py-1 text-[10px] font-mono tracking-wider font-bold rounded uppercase transition-all duration-150 cursor-pointer ${
+            idx === 0
+              ? 'bg-surface-raised border border-code-border text-ink-strong'
+              : 'bg-transparent text-ink-dim hover:text-ink-strong'
+          }`}
+          data-tab-idx={idx}
+        >
+          {tab}
+        </button>
+      ))}
+    </div>
+  </div>
+  <div class="code-blocks-container relative">
+    <slot />
+  </div>
+</div>
+
+<script>
+  function setupCodeTabs() {
+    document.querySelectorAll('.code-tabs-container').forEach((container) => {
+      const tabs = container.querySelectorAll('.code-tab-btn');
+      const blocks = container.querySelectorAll('.code-blocks-container > *');
+      
+      // Hide all blocks except the first one
+      blocks.forEach((block, idx) => {
+        if (block instanceof HTMLElement) {
+          if (idx === 0) {
+            block.style.display = 'block';
+          } else {
+            block.style.display = 'none';
+          }
+        }
+      });
+
+      tabs.forEach((tab) => {
+        tab.addEventListener('click', () => {
+          const targetIdx = parseInt(tab.getAttribute('data-tab-idx') || '0', 10);
+          
+          tabs.forEach((t, idx) => {
+            if (idx === targetIdx) {
+              t.classList.add('bg-surface-raised', 'border', 'border-code-border', 'text-ink-strong');
+              t.classList.remove('bg-transparent', 'text-ink-dim');
+            } else {
+              t.classList.remove('bg-surface-raised', 'border', 'border-code-border', 'text-ink-strong');
+              t.classList.add('bg-transparent', 'text-ink-dim');
+            }
+          });
+
+          blocks.forEach((block, idx) => {
+            if (block instanceof HTMLElement) {
+              if (idx === targetIdx) {
+                block.style.display = 'block';
+              } else {
+                block.style.display = 'none';
+              }
+            }
+          });
+        });
+      });
+    });
+  }
+
+  // Wait a frame to let BaseLayout's setupCodeWindows run first
+  requestAnimationFrame(() => {
+    setupCodeTabs();
+  });
+  
+  // Re-run on View Transitions swaps
+  document.addEventListener('astro:after-swap', () => {
+    requestAnimationFrame(() => {
+      setupCodeTabs();
+    });
+  });
+</script>
+
+<style is:global>
+  /* Remove duplicate window styles for code blocks within the tabs wrapper */
+  .code-tabs-container .code-window {
+    border: none !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+    margin: 0 !important;
+    background: transparent !important;
+  }
+
+  /* Hide inner traffic lights */
+  .code-tabs-container .code-window .code-header > div:first-child {
+    display: none !important;
+  }
+
+  /* Simplify the inner header to only show the language and copy button */
+  .code-tabs-container .code-window .code-header {
+    background: transparent !important;
+    border-bottom: none !important;
+    padding-top: 0.75rem !important;
+    padding-bottom: 0.25rem !important;
+  }
+
+  .code-tabs-container .code-window pre {
+    margin-top: 0 !important;
+    padding-top: 0.5rem !important;
+  }
+</style>

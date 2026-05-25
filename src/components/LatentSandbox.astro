@@ -1,0 +1,304 @@
+<div class="sandbox-container my-12 p-6 border border-ink-faint bg-surface rounded-lg select-none transition-colors duration-300">
+  <div class="sandbox-meta flex justify-between items-center mb-4 border-b border-ink-faint pb-3 flex-wrap gap-2">
+    <span class="sandbox-title font-garamond text-[0.75rem] tracking-[0.15em] uppercase text-accent font-medium">Interactive Latent Space Sandbox</span>
+    <span class="sandbox-instructions text-[0.7rem] text-ink-dim italic">Drag the glowing center anchor to traverse coordinates</span>
+  </div>
+  <canvas id="sandbox-canvas" class="w-full h-80 bg-[#09090a] rounded border border-white/5 cursor-crosshair max-w-full"></canvas>
+  <div class="sandbox-console bg-[#09090a] border-t border-white/5 p-4 font-mono text-[0.72rem] text-code-txt rounded-b -mt-1">
+    <div class="console-line flex justify-between mb-1">
+      <span>Attention Vector: <span id="val-coords" class="text-ink-strong">[0.00, 0.00]</span></span>
+      <span>Reconstruction Entropy: <span id="val-entropy" class="text-ink-strong">1.00</span></span>
+    </div>
+    <div class="console-reconstruction text-accent-glowing text-[0.8rem] mt-2 pt-2 border-t border-dashed border-white/5 min-h-[2.2rem] leading-relaxed" id="console-output">
+      Hovering in the static void... Traverse closer to any experience coordinate to begin reconstruction.
+    </div>
+  </div>
+</div>
+
+<script>
+  interface Memory {
+    name: string;
+    x: number;
+    y: number;
+    r: number;
+    fragments: string[];
+    color: string;
+  }
+
+  function initSandbox() {
+    const canvas = document.getElementById('sandbox-canvas') as HTMLCanvasElement | null;
+    if (!canvas) return;
+
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+
+    const valCoords = document.getElementById('val-coords');
+    const valEntropy = document.getElementById('val-entropy');
+    const consoleOutput = document.getElementById('console-output');
+
+    // Memories mapping as coordinate clusters
+    const memories: Memory[] = [
+      { name: "Mother's Voice", x: -0.5, y: 0.6, r: 24, fragments: ["soft rhythmic hum", "the trace of a lullaby", "clean laundry warmth", "gentle cadence fading"], color: '#df9e6c' },
+      { name: "Childhood Porch", x: 0.6, y: -0.4, r: 28, fragments: ["warm wooden steps", "evening crickets sound", "orange streetlamp glow", "dust particles floating"], color: '#8fb09e' },
+      { name: "First Heartbreak", x: -0.7, y: -0.6, r: 20, fragments: ["heavy rainy afternoon", "sudden door click shutting", "cold coffee on table", "sharp silence lingering"], color: '#c58e7d' },
+      { name: "Summer Rain", x: 0.3, y: 0.7, r: 25, fragments: ["petrichor rise", "cool steam on asphalt", "shittering leaf patterns", "brief thunder rumble"], color: '#7c8fa6' }
+    ];
+
+    // Map normalized coordinates [-1, 1] to canvas pixels
+    function toCanvasCoords(nx: number, ny: number) {
+      if (!canvas) return { x: 0, y: 0 };
+      const cx = canvas.width / 2 + (nx * (canvas.width * 0.4));
+      const cy = canvas.height / 2 - (ny * (canvas.height * 0.4));
+      return { x: cx, y: cy };
+    }
+
+    function fromCanvasCoords(cx: number, cy: number) {
+      if (!canvas) return { x: 0, y: 0 };
+      const nx = (cx - canvas.width / 2) / (canvas.width * 0.4);
+      const ny = -(cy - canvas.height / 2) / (canvas.height * 0.4);
+      return { x: nx, y: ny };
+    }
+
+    // Attention Anchor initialization
+    let anchor = { x: 0.0, y: 0.0 };
+    let isDragging = false;
+
+    function resizeCanvas() {
+      if (!canvas) return;
+      const rect = canvas.getBoundingClientRect();
+      canvas.width = rect.width;
+      canvas.height = rect.height;
+      drawSandbox();
+    }
+
+    // Handle Dragging
+    function getMousePos(evt: MouseEvent | TouchEvent) {
+      if (!canvas) return { x: 0, y: 0 };
+      const rect = canvas.getBoundingClientRect();
+      const clientX = 'touches' in evt ? evt.touches[0].clientX : evt.clientX;
+      const clientY = 'touches' in evt ? evt.touches[0].clientY : evt.clientY;
+      return {
+        x: clientX - rect.left,
+        y: clientY - rect.top
+      };
+    }
+
+    function dragStart(e: MouseEvent | TouchEvent) {
+      const pos = getMousePos(e);
+      const canvasAnchor = toCanvasCoords(anchor.x, anchor.y);
+      const dx = pos.x - canvasAnchor.x;
+      const dy = pos.y - canvasAnchor.y;
+      // Activate drag if clicked anywhere near the anchor (radius 25)
+      if (Math.sqrt(dx*dx + dy*dy) < 25) {
+        isDragging = true;
+        if (e.cancelable) e.preventDefault();
+      }
+    }
+
+    function dragMove(e: MouseEvent | TouchEvent) {
+      if (!isDragging) return;
+      if (e.cancelable) e.preventDefault();
+      const pos = getMousePos(e);
+      const norm = fromCanvasCoords(pos.x, pos.y);
+      // Keep within bounds
+      anchor.x = Math.max(-1.1, Math.min(1.1, norm.x));
+      anchor.y = Math.max(-1.1, Math.min(1.1, norm.y));
+      
+      updateReconstruction();
+      drawSandbox();
+    }
+
+    function dragEnd() {
+      isDragging = false;
+    }
+
+    canvas.addEventListener('mousedown', dragStart);
+    canvas.addEventListener('mousemove', dragMove);
+    window.addEventListener('mouseup', dragEnd);
+
+    canvas.addEventListener('touchstart', dragStart, { passive: false });
+    canvas.addEventListener('touchmove', dragMove, { passive: false });
+    window.addEventListener('touchend', dragEnd);
+
+    // Real-time signal reconstruction and decay calculations
+    function updateReconstruction() {
+      if (valCoords) valCoords.innerText = `[${anchor.x.toFixed(2)}, ${anchor.y.toFixed(2)}]`;
+      
+      let closestMem: Memory | null = null;
+      let minDistance = 999;
+      
+      memories.forEach(mem => {
+        const dist = Math.sqrt((anchor.x - mem.x)**2 + (anchor.y - mem.y)**2);
+        if (dist < minDistance) {
+          minDistance = dist;
+          closestMem = mem;
+        }
+      });
+
+      const threshold = 0.55;
+      if (closestMem && minDistance < threshold) {
+        // Calculate clarity percentage
+        const clarity = Math.exp(-minDistance * 2.2);
+        if (valEntropy) valEntropy.innerText = (1 - clarity).toFixed(2);
+        
+        // Scramble / reconstruct based on coordinate distance
+        let decodedStr = "";
+        closestMem.fragments.forEach((frag) => {
+          let wordStr = "";
+          for (let i = 0; i < frag.length; i++) {
+            if (Math.random() > clarity) {
+              // Scramble characters based on degradation
+              const chars = "$%#*@_-+?=&~";
+              wordStr += chars[Math.floor(Math.random() * chars.length)];
+            } else {
+              wordStr += frag[i];
+            }
+          }
+          decodedStr += ` <span style="opacity: ${Math.max(0.2, clarity)};">${wordStr}</span> — `;
+        });
+        
+        decodedStr = decodedStr.slice(0, -3); // Strip trailing dashes
+        
+        if (consoleOutput) {
+          consoleOutput.innerHTML = `
+            <strong style="color: ${closestMem.color}">[Reconstructing: ${closestMem.name}]</strong><br>
+            <span style="font-size: 0.65rem; color: #777;">Confidence Match: ${(clarity * 100).toFixed(1)}%</span><br>
+            <div class="console-reconstruction" style="margin-top: 0.25rem;">${decodedStr}</div>
+          `;
+        }
+      } else {
+        // Complete drift in intermediate space
+        if (valEntropy) valEntropy.innerText = "1.00";
+        // Generate randomized matrix noise to mimic raw spatial decay
+        let rawNoise = "";
+        for (let i = 0; i < 48; i++) {
+          const chars = ".,_~/*+=-_$&%#?@!   ";
+          rawNoise += chars[Math.floor(Math.random() * chars.length)];
+        }
+        if (consoleOutput) {
+          consoleOutput.innerHTML = `
+            <span style="color: var(--ink-dim)">[Reconstruction Error: Critical]</span><br>
+            <span style="font-size: 0.65rem; color: #555;">Signal lost to entropy of void coordinates.</span><br>
+            <div class="console-reconstruction" style="color: var(--ink-dim); font-style: italic; margin-top: 0.25rem;">${rawNoise}</div>
+          `;
+        }
+      }
+    }
+
+    // Draw the sandbox UI
+    function drawSandbox() {
+      if (!ctx || !canvas) return;
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      
+      // Draw background grid lines (manifold vectors)
+      ctx.strokeStyle = 'rgba(255, 255, 255, 0.015)';
+      ctx.lineWidth = 1;
+      const gridSpacing = canvas.width / 12;
+      for (let i = 0; i < canvas.width; i += gridSpacing) {
+        ctx.beginPath();
+        ctx.moveTo(i, 0);
+        ctx.lineTo(i, canvas.height);
+        ctx.stroke();
+      }
+      for (let j = 0; j < canvas.height; j += gridSpacing) {
+        ctx.beginPath();
+        ctx.moveTo(0, j);
+        ctx.lineTo(canvas.width, j);
+        ctx.stroke();
+      }
+
+      // Draw center axes
+      ctx.strokeStyle = 'rgba(255, 255, 255, 0.04)';
+      ctx.beginPath();
+      ctx.moveTo(canvas.width / 2, 0);
+      ctx.lineTo(canvas.width / 2, canvas.height);
+      ctx.moveTo(0, canvas.height / 2);
+      ctx.lineTo(canvas.width, canvas.height / 2);
+      ctx.stroke();
+
+      // Draw Memory Probability Wells (Clusters)
+      memories.forEach(mem => {
+        const c = toCanvasCoords(mem.x, mem.y);
+        
+        // Glow background radial
+        const grad = ctx.createRadialGradient(c.x, c.y, 2, c.x, c.y, mem.r * 2.5);
+        grad.addColorStop(0, `${mem.color}15`);
+        grad.addColorStop(1, '#00000000');
+        
+        ctx.fillStyle = grad;
+        ctx.beginPath();
+        ctx.arc(c.x, c.y, mem.r * 2.5, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Core point
+        ctx.fillStyle = mem.color;
+        ctx.beginPath();
+        ctx.arc(c.x, c.y, 6, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Outer boundary ring representing standard deviation σ
+        ctx.strokeStyle = `${mem.color}33`;
+        ctx.setLineDash([4, 4]);
+        ctx.beginPath();
+        ctx.arc(c.x, c.y, mem.r * 1.5, 0, Math.PI * 2);
+        ctx.stroke();
+        ctx.setLineDash([]);
+
+        // Label
+        ctx.fillStyle = 'rgba(255, 255, 255, 0.4)';
+        ctx.font = "9px 'JetBrains Mono', monospace";
+        ctx.textAlign = 'center';
+        ctx.fillText(mem.name.toUpperCase(), c.x, c.y - 12);
+      });
+
+      // Draw Lines connecting Anchor to Wells if close enough (Traversal Lines)
+      const canvasAnchor = toCanvasCoords(anchor.x, anchor.y);
+      memories.forEach(mem => {
+        const c = toCanvasCoords(mem.x, mem.y);
+        const dx = canvasAnchor.x - c.x;
+        const dy = canvasAnchor.y - c.y;
+        const d = Math.sqrt(dx*dx + dy*dy);
+        
+        if (d < 160) {
+          ctx.strokeStyle = `rgba(223, 158, 108, ${Math.max(0.05, 1 - d/160)})`;
+          ctx.lineWidth = 1;
+          ctx.beginPath();
+          ctx.moveTo(canvasAnchor.x, canvasAnchor.y);
+          ctx.lineTo(c.x, c.y);
+          ctx.stroke();
+        }
+      });
+
+      // Draw Attention Anchor cursor
+      ctx.fillStyle = 'rgba(223, 158, 108, 0.15)';
+      ctx.beginPath();
+      ctx.arc(canvasAnchor.x, canvasAnchor.y, 20, 0, Math.PI * 2);
+      ctx.fill();
+
+      ctx.fillStyle = '#df9e6c';
+      ctx.beginPath();
+      ctx.arc(canvasAnchor.x, canvasAnchor.y, 5, 0, Math.PI * 2);
+      ctx.fill();
+
+      ctx.strokeStyle = '#fff';
+      ctx.lineWidth = 1;
+      ctx.beginPath();
+      ctx.arc(canvasAnchor.x, canvasAnchor.y, 9, 0, Math.PI * 2);
+      ctx.stroke();
+    }
+
+    // Handle resize
+    window.addEventListener('resize', resizeCanvas);
+    resizeCanvas();
+    updateReconstruction();
+
+    // Clean up events on navigation (Astro swaps)
+    document.addEventListener('astro:before-swap', () => {
+      window.removeEventListener('resize', resizeCanvas);
+    }, { once: true });
+  }
+
+  // Initialize
+  initSandbox();
+  document.addEventListener('astro:after-swap', initSandbox);
+</script>

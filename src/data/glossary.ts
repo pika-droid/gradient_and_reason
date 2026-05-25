@@ -104,5 +104,40 @@ export const glossary: Record<string, GlossaryEntry> = {
     term: "Latent Manifold",
     def: "A low-dimensional geometric structure embedded within a high-dimensional space where clean data patterns lie.",
     url: "https://en.wikipedia.org/wiki/Manifold_hypothesis"
+  },
+  "latent-space": {
+    term: "Latent Space",
+    def: "An abstract multi-dimensional space where similar data points are clustered close to one another.",
+    url: "https://en.wikipedia.org/wiki/Latent_space"
+  },
+  "compression": {
+    term: "Compression",
+    def: "The mapping of high-dimensional input into a lower-dimensional bottleneck, discarding non-essential details.",
+    url: "https://en.wikipedia.org/wiki/Data_compression"
+  },
+  "reconstruction": {
+    term: "Reconstruction",
+    def: "The generative process of decoding compressed latent coordinates back to high-dimensional data.",
+    url: "https://en.wikipedia.org/wiki/Autoencoder"
+  },
+  "reconstruction-loss": {
+    term: "Reconstruction Loss",
+    def: "The mathematical penalty assessing how much the reconstructed output differs from the original input.",
+    url: "https://en.wikipedia.org/wiki/Autoencoder"
+  },
+  "kl-divergence": {
+    term: "KL Divergence",
+    def: "Kullback-Leibler Divergence. A metric of how much one probability distribution diverges from a second one.",
+    url: "https://en.wikipedia.org/wiki/Kullback%E2%80%93Leibler_divergence"
+  },
+  "unlearning": {
+    term: "Machine Unlearning",
+    def: "The process of surgically erasing specific training points from a model without catastrophic interference.",
+    url: "https://en.wikipedia.org/wiki/Machine_unlearning"
+  },
+  "concept-drift": {
+    term: "Concept Drift",
+    def: "The decay of predictive accuracy when target statistical properties change over time, altering context.",
+    url: "https://en.wikipedia.org/wiki/Concept_drift"
   }
 };

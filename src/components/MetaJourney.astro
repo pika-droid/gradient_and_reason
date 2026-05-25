@@ -1,0 +1,14 @@
+---
+interface Props {
+  title: string;
+}
+
+const { title } = Astro.props;
+---
+
+<div class="meta-journey-card">
+  <h4 class="meta-journey-title">
+    <span>⚡ {title}</span>
+  </h4>
+  <slot />
+</div>

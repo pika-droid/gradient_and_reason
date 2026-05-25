@@ -1,0 +1,228 @@
+---
+interface Props {
+  id: string;
+  triggerLabel: string;
+}
+
+const { id, triggerLabel } = Astro.props;
+---
+
+<div class="lab-trigger-container">
+  <button class="lab-trigger-btn" id={`trigger-${id}`} data-target={`panel-${id}`}>
+    <span>🔬 {triggerLabel}</span>
+    <span class="icon">+</span>
+  </button>
+  <div class="lab-panel" id={`panel-${id}`}>
+    <slot />
+  </div>
+</div>
+
+<script>
+  function setupLabNotes() {
+    const triggers = document.querySelectorAll('.lab-trigger-btn');
+    triggers.forEach(trigger => {
+      trigger.removeEventListener('click', handleTriggerClick);
+      trigger.addEventListener('click', handleTriggerClick);
+    });
+  }
+
+  function handleTriggerClick(e: Event) {
+    const trigger = e.currentTarget as HTMLButtonElement;
+    const panelId = trigger.getAttribute('data-target');
+    if (!panelId) return;
+    const panel = document.getElementById(panelId);
+    if (!panel) return;
+
+    if (panel.classList.contains('open')) {
+      panel.classList.remove('open');
+      trigger.classList.remove('expanded');
+      const icon = trigger.querySelector('.icon');
+      if (icon) icon.textContent = '+';
+    } else {
+      panel.classList.add('open');
+      trigger.classList.add('expanded');
+      const icon = trigger.querySelector('.icon');
+      if (icon) icon.textContent = '×';
+
+      // Trigger charts render on open
+      if (panelId === 'panel-exp-1' && typeof window !== 'undefined' && (window as any).renderBetaSpace) {
+        (window as any).renderBetaSpace(0);
+      } else if (panelId === 'panel-exp-2' && typeof window !== 'undefined' && (window as any).renderUnlearningChart) {
+        (window as any).renderUnlearningChart();
+      } else if (panelId === 'panel-exp-3' && typeof window !== 'undefined' && (window as any).renderDriftChart) {
+        (window as any).renderDriftChart();
+      }
+    }
+  }
+
+  // Dynamic SVG Chart Renderers
+  (window as any).renderBetaSpace = function(tabIdx: number) {
+    const svg = document.getElementById('beta-chart-svg');
+    if (!svg) return;
+    svg.innerHTML = ''; // Reset
+
+    // Draw borders & axes
+    const gridColor = "rgba(255,255,255,0.03)";
+    const axesColor = "rgba(255,255,255,0.08)";
+    let backgroundLines = '';
+    for(let i=50; i<500; i+=50) backgroundLines += `<line x1="${i}" y1="0" x2="${i}" y2="300" stroke="${gridColor}" />`;
+    for(let j=50; j<300; j+=50) backgroundLines += `<line x1="0" y1="${j}" x2="500" y2="${j}" stroke="${gridColor}" />`;
+    
+    svg.innerHTML = `
+      <rect width="500" height="300" fill="#09090a" />
+      ${backgroundLines}
+      <line x1="250" y1="0" x2="250" y2="300" stroke="${axesColor}" />
+      <line x1="0" y1="150" x2="500" y2="150" stroke="${axesColor}" />
+    `;
+
+    // Static clustered coordinate centers representing memories
+    const clusters = [
+      { x: 100, y: 70, color: '#e8a66f', label: 'Cluster A' },
+      { x: 400, y: 80, color: '#c58e7d', label: 'Cluster B' },
+      { x: 220, y: 240, color: '#8fb09e', label: 'Cluster C' },
+      { x: 380, y: 220, color: '#7c8fa6', label: 'Cluster D' }
+    ];
+
+    if (tabIdx === 0) {
+      // Beta = 0: Maximally separated, disjoint clusters, tight islands (AE)
+      clusters.forEach(c => {
+        // Draw 25 clustered experience nodes
+        for (let i=0; i<25; i++) {
+          const r = Math.random() * 12;
+          const theta = Math.random() * Math.PI * 2;
+          const px = c.x + r * Math.cos(theta);
+          const py = c.y + r * Math.sin(theta);
+          svg.innerHTML += `<circle cx="${px}" cy="${py}" r="2.5" fill="${c.color}" opacity="0.75" />`;
+        }
+      });
+    } else if (tabIdx === 1) {
+      // Beta = 1: Smoother, closer clusters representing contracted continuous coordinates
+      clusters.forEach(c => {
+        // Shrink distance to center slightly
+        const cx = 250 + (c.x - 250) * 0.72;
+        const cy = 150 + (c.y - 150) * 0.72;
+        
+        // Slightly wider cluster variance (Reparameterization Std Deviation)
+        svg.innerHTML += `<circle cx="${cx}" cy="${cy}" r="35" fill="${c.color}" fill-opacity="0.04" stroke="${c.color}" stroke-opacity="0.12" stroke-dasharray="2,2" />`;
+        for (let i=0; i<25; i++) {
+          const r = Math.random() * 20;
+          const theta = Math.random() * Math.PI * 2;
+          const px = cx + r * Math.cos(theta);
+          const py = cy + r * Math.sin(theta);
+          svg.innerHTML += `<circle cx="${px}" cy="${py}" r="2" fill="${c.color}" opacity="0.6" />`;
+        }
+      });
+    } else {
+      // Tradeoff Curve visualization
+      let curvePoints = '';
+      for (let x=40; x<=460; x+=10) {
+        // Logarithmic loss projection curve
+        const y = 240 - 150 * Math.exp(-(x-40)/120);
+        curvePoints += `${x},${y} `;
+      }
+      svg.innerHTML += `
+        <polyline points="${curvePoints}" fill="none" stroke="#c48c5d" stroke-width="2" />
+        <circle cx="100" cy="149" r="6" fill="#e8a66f" />
+        <text x="110" y="145" fill="#f3f1ed" font-family="JetBrains Mono" font-size="9">Beta = 1.0 (Optimal Manifold)</text>
+        <circle cx="280" cy="216" r="6" fill="#c58e7d" />
+        <text x="290" y="212" fill="#f3f1ed" font-family="JetBrains Mono" font-size="9">Beta = 0 (No Regularization)</text>
+        <circle cx="50" cy="90" r="6" fill="#8fb09e" />
+        <text x="60" y="85" fill="#f3f1ed" font-family="JetBrains Mono" font-size="9">Beta = 10 (Total Collapse)</text>
+        <text x="20" y="280" fill="#88847d" font-family="JetBrains Mono" font-size="9">Generalization Capability (Smoothness) →</text>
+        <text x="20" y="30" fill="#88847d" font-family="JetBrains Mono" font-size="9">↑ Reconstruction Accuracy</text>
+      `;
+    }
+  };
+
+  (window as any).renderUnlearningChart = function() {
+    const svg = document.getElementById('unlearning-chart-svg');
+    if (!svg) return;
+    svg.innerHTML = `
+      <rect width="500" height="300" fill="#09090a" />
+      <line x1="50" y1="20" x2="50" y2="260" stroke="rgba(255,255,255,0.08)" />
+      <line x1="50" y1="260" x2="480" y2="260" stroke="rgba(255,255,255,0.08)" />
+      
+      <!-- Grid Lines -->
+      <line x1="50" y1="140" x2="480" y2="140" stroke="rgba(255,255,255,0.02)" />
+      <line x1="50" y1="20" x2="480" y2="20" stroke="rgba(255,255,255,0.02)" />
+      
+      <text x="35" y="263" fill="#88847d" font-family="JetBrains Mono" font-size="9" text-anchor="end">0.0000</text>
+      <text x="35" y="143" fill="#88847d" font-family="JetBrains Mono" font-size="9" text-anchor="end">0.0045</text>
+      <text x="35" y="23" fill="#88847d" font-family="JetBrains Mono" font-size="9" text-anchor="end">0.0090</text>
+      <text x="250" y="290" fill="#88847d" font-family="JetBrains Mono" font-size="9" text-anchor="middle">Excision Method</text>
+      
+      <!-- Bar Case A: Single Sample Deletion -->
+      <rect x="110" y="258.5" width="80" height="1.5" fill="#c58e7d" opacity="0.8" />
+      <text x="150" y="245" fill="#cfccc6" font-family="JetBrains Mono" font-size="10" text-anchor="middle">0.000051</text>
+      <text x="150" y="275" fill="#88847d" font-family="JetBrains Mono" font-size="9" text-anchor="middle">Single Deletion</text>
+      
+      <!-- Bar Case B: Cluster Deletion (Grief) -->
+      <rect x="310" y="41.5" width="80" height="218.5" fill="#b07d54" opacity="0.9" />
+      <text x="350" y="32" fill="#f3f1ed" font-family="JetBrains Mono" font-size="10" text-anchor="middle" font-weight="bold">0.008190</text>
+      <text x="350" y="275" fill="#88847d" font-family="JetBrains Mono" font-size="9" text-anchor="middle">Cluster Deletion (Grief)</text>
+    `;
+  };
+
+  (window as any).renderDriftChart = function() {
+    const svg = document.getElementById('drift-chart-svg');
+    if (!svg) return;
+    
+    svg.innerHTML = `
+      <rect width="500" height="300" fill="#09090a" />
+      <line x1="50" y1="20" x2="50" y2="260" stroke="rgba(255,255,255,0.08)" />
+      <line x1="50" y1="260" x2="480" y2="260" stroke="rgba(255,255,255,0.08)" />
+      
+      <text x="35" y="263" fill="#88847d" font-family="JetBrains Mono" font-size="9" text-anchor="end">0.000</text>
+      <text x="35" y="143" fill="#88847d" font-family="JetBrains Mono" font-size="9" text-anchor="end">0.015</text>
+      <text x="35" y="23" fill="#88847d" font-family="JetBrains Mono" font-size="9" text-anchor="end">0.030</text>
+      <text x="250" y="290" fill="#88847d" font-family="JetBrains Mono" font-size="9" text-anchor="middle">Parameter Noise / Drift Level (σ) →</text>
+      
+      <!-- Exponential curve -->
+      <path d="M 50,260 Q 300,240 450,40" fill="none" stroke="#e8a66f" stroke-width="2.5" />
+      
+      <!-- Nodes -->
+      <circle cx="100" cy="258" r="4.5" fill="#cfccc6" />
+      <text x="100" y="244" fill="#cfccc6" font-family="JetBrains Mono" font-size="8" text-anchor="middle">0.01: 0.000083</text>
+      
+      <circle cx="190" cy="245" r="4.5" fill="#7c8fa6" />
+      <text x="190" y="231" fill="#7c8fa6" font-family="JetBrains Mono" font-size="8" text-anchor="middle">0.05: 0.001868</text>
+      
+      <circle cx="280" cy="216" r="4.5" fill="#c48c5d" />
+      <text x="280" y="202" fill="#c48c5d" font-family="JetBrains Mono" font-size="8" text-anchor="middle">0.10: 0.005641</text>
+      
+      <circle cx="450" cy="40" r="4.5" fill="#e8a66f" />
+      <text x="430" y="28" fill="#e8a66f" font-family="JetBrains Mono" font-size="8" text-anchor="middle" font-weight="bold">0.20: 0.028898</text>
+    `;
+  };
+
+  // Tab click logic
+  function setupTabs() {
+    const tabs = document.querySelectorAll('.dash-tab');
+    tabs.forEach(tab => {
+      tab.removeEventListener('click', handleTabClick);
+      tab.addEventListener('click', handleTabClick);
+    });
+  }
+
+  function handleTabClick(e: Event) {
+    const target = e.currentTarget as HTMLButtonElement;
+    const tabIdx = parseInt(target.getAttribute('data-tab') || '0', 10);
+    const parent = target.parentElement;
+    if (parent) {
+      parent.querySelectorAll('.dash-tab').forEach(btn => btn.classList.remove('active'));
+    }
+    target.classList.add('active');
+    
+    if ((window as any).renderBetaSpace) {
+      (window as any).renderBetaSpace(tabIdx);
+    }
+  }
+
+  // Initialize
+  setupLabNotes();
+  setupTabs();
+  document.addEventListener('astro:page-load', () => {
+    setupLabNotes();
+    setupTabs();
+  });
+</script>
