@@ -32,6 +32,11 @@ Imagine two men who share an observatory but little else. One predicts eclipses 
 Ancient astronomy predicted motion long before it understood causes. And there is something elegiac about that — all that careful watching, all those correct answers, in the absence of knowing why. Aristotle noticed this divide and named it: *knowing that* something occurs ($to\ hoti$), and *knowing why* it occurs ($to\ dioti$). Prediction belongs to the first. Understanding demands the second.
 
 <Philosophy>
+"We suppose ourselves to possess unqualified scientific knowledge of a thing... when we think that we know the cause on which the fact depends, as the cause of that fact and of no other, and, further, that the fact could not be other than it is."
+— **Aristotle** (from *Posterior Analytics*, c. 350 BCE)
+</Philosophy>
+
+<Philosophy>
 Machine learning unexpectedly returns us to this ancient divide. We have become very good at building the first astronomer. The second one's chair sits empty.
 </Philosophy>
 </ScrollReveal>
@@ -42,6 +47,11 @@ Machine learning unexpectedly returns us to this ancient divide. We have become 
 ## Underdetermination — The First Wound
 
 What makes predictive success so philosophically dangerous is that it *feels* like evidence of understanding. When something works, we assume comprehension behind it. Yet philosophy has long warned us of a trap: the <Term id="duhem-quine">**Duhem-Quine thesis**</Term>, which states that a body of evidence can always underdetermine the theory used to explain it. Multiple incompatible accounts of reality can produce identical observations.
+
+<Philosophy>
+"Any statement can be held true come what may, if we make drastic enough adjustments elsewhere in the system."
+— **W. V. O. Quine** (from *Two Dogmas of Empiricism*, 1951)
+</Philosophy>
 
 In modern machine learning, this is no longer an abstract thought experiment; it is a demonstrable fact found within <Term id="scm">**Structural Causal Models (SCMs)**</Term>. Let us build two entirely different worlds in code. In World A, variable $X$ causes $Y$, which subsequently causes $Z$. In World B, the arrow of time and physical consequence is entirely reversed: $Z$ causes $Y$, which causes $X$.
 
@@ -96,6 +106,11 @@ The predictive model is utterly blind to this difference. It lives in a flat lan
 ## Representations Don't Mean Anything
 
 The internal state of a neural network is often celebrated as a "conceptual representation." But history keeps disabusing us of the idea that functional representation equals true reference. Philosopher Hilary Putnam famously illustrated this with <Term id="putnam-reference">his reference problem</Term>: symbols do not carry intrinsic meaning just because they successfully map to an external object.
+
+<Philosophy>
+"Words do not stand for things by themselves, nor does a mind stand for things by itself... Symbols do not correspond to things."
+— **Hilary Putnam** (from *Reason, Truth and History*, 1981)
+</Philosophy>
 
 We see the tragedy of Putnam’s problem play out when training a <Term id="vae">**Variational Autoencoder (VAE)**</Term> or standard autoencoder on high-dimensional vectors. The network is tasked with finding the true latent factors of the world by minimizing the standard reconstruction objective function. Even with a perfect model, the bottleneck configuration is underdetermined:
 
@@ -197,7 +212,14 @@ When you run this exact experiment, the convolutional network converges with a s
 
 This is not a random coin flip ($50\%$). It is a systematic, predictable failure. The model has learned to cheat so thoroughly—relying on the color shortcut because color is mathematically simpler to compress than shape geometry—that when the cheat is inverted, it fails with absolute certainty. It uses color as an active negative predictor.
 
-Philosopher Karl Popper argued that scientific theories are validated by how well they survive severe, risky attempts at <Term id="falsification">falsification</Term>. The model did not pass Popper’s test. The **88.4%** drop in performance is the exact moment the machine's "habit and hope" collides with an altered reality. It reveals that our system was blind the entire time it was succeeding.
+Philosopher Karl Popper argued that scientific theories are validated by how well they survive severe, risky attempts at <Term id="falsification">falsification</Term>. The model did not pass Popper’s test.
+
+<Philosophy>
+"Confirmations should count only if they are the result of risky predictions; that is to say, if, undefended by the theory in question, we should have expected an event which was incompatible with the theory—an event which, had it occurred, would have refuted the theory."
+— **Karl Popper** (from *Conjectures and Refutations*, 1963)
+</Philosophy>
+
+The **88.4%** drop in performance is the exact moment the machine's "habit and hope" collides with an altered reality. It reveals that our system was blind the entire time it was succeeding.
 </ScrollReveal>
 
 <ScrollReveal>
@@ -205,7 +227,14 @@ Philosopher Karl Popper argued that scientific theories are validated by how wel
 
 ## We Can't Read Our Own Minds
 
-We often turn to the field of <Term id="mechanistic-interp">**Mechanistic Interpretability**</Term> to save us, hoping to peer into the black box and extract its logic. John Searle’s classic <Term id="chinese-room">*Chinese Room*</Term> argument suggested that a system manipulating symbols lacks understanding because it blindly follows a rulebook. But mechanistic interpretability reveals a twist that Searle didn't anticipate: **the rulebook itself is illegible.**
+We often turn to the field of <Term id="mechanistic-interp">**Mechanistic Interpretability**</Term> to save us, hoping to peer into the black box and extract its logic. John Searle’s classic <Term id="chinese-room">*Chinese Room*</Term> argument suggested that a system manipulating symbols lacks understanding because it blindly follows a rulebook.
+
+<Philosophy>
+"The reason that no computer program can ever be a mind is simply that a computer program is only syntactical, and minds are more than syntactical. Minds are semantical, in the sense that they have more than a formal structure, they have a content."
+— **John Searle** (from *Minds, Brains, and Programs*, 1980)
+</Philosophy>
+
+But mechanistic interpretability reveals a twist that Searle didn't anticipate: **the rulebook itself is illegible.**
 
 When we examine the hidden representations of modern transformers, we find that individual neurons do not correspond to clean, isolated human concepts. Instead, they operate in a state of <Term id="superposition">**superposition**</Term>, acting as <Term id="polysemantic">polysemantic</Term> entities.
 
@@ -229,6 +258,11 @@ Because the network compresses more features than it has physical dimensions, it
 ## The Intervention Gap — Pearl's Ladder
 
 The most formal, mathematically precise expression of the prediction-versus-understanding divide belongs to Judea Pearl and his <Term id="ladder-of-causation">**Ladder of Causation**</Term>. Pure prediction lives entirely on the first rung: Association. It estimates the conditional probability of $Y$ given $X$, written as $P(Y \mid X)$. True understanding requires moving to the second and third rungs: Intervention ($P(Y \mid \text{do}(X))$) and Counterfactuals.
+
+<Philosophy>
+"If I could sum up the message of this book in one pithy phrase, it would be that you are smarter than your data. Data do not understand causes and effects; humans do."
+— **Judea Pearl** (from *The Book of Why: The New Science of Cause and Effect*, 2018)
+</Philosophy>
 
 We can see this gap clearly in experiments using the <Term id="ihdp">**IHDP (Infant Health and Development Program)**</Term> dataset, a standard benchmark for causal inference.
 

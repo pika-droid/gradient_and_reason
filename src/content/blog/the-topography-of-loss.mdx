@@ -37,8 +37,8 @@ The intuition most of us carry is that experience is *stored*: filed, indexed, a
 Modern cognitive science has been quietly dismantling this picture for decades. Memory, at the neural level, does not appear to operate as retrieval from stable storage. It appears closer to a process of <Term id="reconstruction">reconstruction</Term> — an active generation performed anew each time, from compressed traces, context, expectation, and the particular mood of the moment in which the attempt is made.
 
 <Philosophy>
-"Memory is not preserved snapshots — it is the persistence of the past into the present, folded into every act of attention."
-— **Henri Bergson**
+"But, in truth, the past is preserved of itself, automatically."
+— **Henri Bergson** (from *Matter and Memory*, 1896)
 </Philosophy>
 
 <div class="spectrum-container spectrum-centered">
@@ -52,7 +52,7 @@ Modern cognitive science has been quietly dismantling this picture for decades. 
 
 </div>
 
-The philosopher Henri Bergson argued that memory is not a collection of snapshots preserved behind glass. It is the persistence of the past into the present — not stored elsewhere, but folded into every act of attention, every perception of now. Memory, on this account, is not a record. It is the weight of duration bearing down on the present moment.
+The philosopher Henri Bergson argued that this automatic preservation means memory is not a collection of snapshots preserved behind glass. It is the persistence of the past into the present — not stored elsewhere, but folded into every act of attention, every perception of now. Memory, on this account, is not a record. It is the weight of duration bearing down on the present moment.
 
 What happens when we take this intuition seriously — not just philosophically, but formally — is that memory becomes *generative*. Not archival.
 </ScrollReveal>
@@ -67,11 +67,11 @@ In representation learning, a simple autoencoder takes high-dimensional observat
 This is where we meet the structure of the human mind. The dimensions of this space are not individually interpretable. You cannot point to coordinate $47$ and say: *this is the concept of ocean*. Yet if you train such a model on photographs of coasts, cities, and forests, images of oceans cluster together in latent space. The structure of the world — its similarities, its categorical textures — impresses itself onto the geometry without being explicitly named.
 
 <Philosophy>
-"The wax slab of the Mystic Pad retains the deep grooves of history even when the surface sheet is wiped clear. Neural network weights remember the same way."
-— **Sigmund Freud**
+"If I uncover the sheet, the writing vanishes... The wax slab, however, retains the permanent trace of the writing in its deep grooves, even though these are not visible in themselves."
+— **Sigmund Freud** (from *A Note upon the "Mystic Writing-Pad"*, 1925)
 </Philosophy>
 
-This distributed preservation recalls Sigmund Freud’s model of memory: **The Mystic Writing Pad** (1925). Freud described memory as a two-layer system—a transient celluloid sheet and an underlying wax slab. Write upon the pad, and the markings transfer to the wax. Wipe the sheet, and the writing vanishes from view, yet its impressions remain scored permanently in the wax below. In modern networks, our weights are the wax. The inputs are cleared immediately, but the weights have morphed, storing traces of what they once touched.
+This distributed preservation recalls Sigmund Freud’s model of memory: **The Mystic Writing Pad** (1925). Freud described memory as a two-layer system—a transient celluloid sheet and an underlying wax slab. Write upon the pad, and the markings transfer to the wax. Wipe the sheet, and the writing vanishes from view, yet its impressions remain scored permanently in the wax below. In modern networks, our weights function exactly like Freud's wax slab: the inputs are cleared immediately, but the weights have morphed, storing traces of what they once touched.
 
 <CodeTabs tabs={["PyTorch (VAE)", "NumPy (Math)", "Conceptual JS"]}>
 
@@ -187,8 +187,8 @@ This destruction is not a failure of the system; it is the mechanism that produc
 The question this raises, quietly but insistently, is whether forgetting might be structured this way too. Not a failure of the mind, but an active regularization — a necessary destruction that prevents us from collapsing under the weight of total recall, that forces experience into a compressed form capable of organizing new encounters.
 
 <Philosophy>
-"There is a degree of sleeplessness, of rumination... which destroys the living thing. Forgetting is not passive — it is active organization."
-— **Friedrich Nietzsche**
+"Forgetting is not simply a vis inertiae as the superficial believe; it is rather an active and in the strictest sense positive faculty of repression..."
+— **Friedrich Nietzsche** (from *On the Genealogy of Morals*, 1887)
 </Philosophy>
 
 Nietzsche wrote that forgetting is not a passive failure of retention, but an active, positive faculty of containment—the boundary condition that allows us to remain conscious in the present. If this is true, then the memories we cannot release — the ones that stay too sharp, too detailed — are not signs of neurological strength. They are signs that the regularization has failed. The emotional $\beta$ term was set too low. The compression refused to happen.
@@ -302,8 +302,8 @@ $$x_t \to z_t \quad \text{where} \quad z_1 \to z_2 \to z_3 \to \dots$$
 Each experience encodes into a new coordinate. The sequence of coordinates — the trajectory through the latent manifold over a lifetime — is what we mean when we say "a person." Not the current position. Not any single point on the path. The movement itself.
 
 <Philosophy>
-"Identity is not a fixed essence to be recovered but a becoming — a continuous process of differentiation that cannot be resolved into any stable state."
-— **Gilles Deleuze**
+"A becoming is not a correspondence between relations. But neither is it a resemblance, an imitation, or, at the limit, an identification."
+— **Gilles Deleuze & Félix Guattari** (from *A Thousand Plateaus*, 1980)
 </Philosophy>
 
 Gilles Deleuze argued something similar: that identity is *becoming*, not being. There is no essence hidden behind the accumulation of experience, waiting to be uncovered. There is only the process — always already in motion, never arriving at a final coordinate.
@@ -325,11 +325,11 @@ In statistics, this is known as <Term id="concept-drift">Concept Drift</Term> or
 You cannot reconstruct childhood. You reconstruct your current model of childhood — filtered through everything that has happened since, shaped by who you are at the moment of attempting the reconstruction, colored by the mood of the particular Tuesday afternoon in which you sit trying to remember.
 
 <Philosophy>
-"The past is not behind us — it is not something we have left. It remains folded into present existence, shaping every disclosure of what is now."
-— **Martin Heidegger**
+"As long as Dasein exists, it is never past, but it is always indeed 'having-been'..."
+— **Martin Heidegger** (from *Being and Time*, 1927)
 </Philosophy>
 
-Martin Heidegger argued that the past is not behind us — not something we have left, available in principle for revisitation. It is folded into present existence, conditioning every act of perception, shaping the horizon from within which the present discloses itself. We do not stand outside time, reaching backward to retrieve what was. We are always already inside a history that structures what we can currently see.
+Martin Heidegger argued that this "having-been" is not something behind us — not something we have left, available in principle for revisitation. It is folded into present existence, conditioning every act of perception, shaping the horizon from within which the present discloses itself. We do not stand outside time, reaching backward to retrieve what was. We are always already inside a history that structures what we can currently see.
 
 This is not pessimism. It is something closer to a formal acceptance. The past changes not because it was never real, but because we change in our relation to it. The coordinates from which we approach it are always moving. What we reconstruct always carries the mark of the reconstruction — which is to say, the mark of the present in which it was attempted.
 
