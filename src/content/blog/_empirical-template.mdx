@@ -1,0 +1,138 @@
+---
+title: "[Essay Title]"
+description: "[Under 160 characters]"
+date: 2026-01-01
+tags: ["data", "philosophy"]
+kicker: "[Topic statement]"
+subtitle: "[Secondary title]"
+essayType: "empirical"
+depth: "advanced"
+draft: true
+---
+
+import ScrollReveal from '../../components/ScrollReveal.astro';
+import SectionLabel from '../../components/SectionLabel.astro';
+import Philosophy from '../../components/Philosophy.astro';
+import Term from '../../components/Term.astro';
+import LabNotes from '../../components/LabNotes.astro';
+import MetaJourney from '../../components/MetaJourney.astro';
+
+{/* ═══════════════════════════════════════════════
+    PART I — THE ANOMALY (no section label)
+    Open with a surprising finding from real data.
+    The reader should feel your genuine surprise.
+    Do NOT front-load philosophy.
+    ═══════════════════════════════════════════════ */}
+
+<ScrollReveal>
+[Opening: describe the dataset you pulled, the analysis you ran,
+and the result you didn't expect. Start with "I" or "You" —
+make it personal. Link to the Colab notebook here.]
+</ScrollReveal>
+
+{/* ═══════════════════════════════════════════════
+    PART II — THE INVESTIGATION (sections I–IV)
+    Build the analytical pipeline step by step.
+    Show failed approaches. Show what worked.
+    ═══════════════════════════════════════════════ */}
+
+<ScrollReveal>
+<SectionLabel label="I" />
+
+## [First Analytical Step]
+
+[Describe the first approach you tried. Show the code.
+If it failed, explain why — this is the lab-notes-as-confessional move.]
+</ScrollReveal>
+
+<ScrollReveal>
+<SectionLabel label="II" />
+
+## [Refined Approach]
+
+[The second approach that revealed structure. Include a LabNotes dashboard.]
+
+<LabNotes id="investigation-1" triggerLabel="[Dashboard Title]">
+  {/* Metric cards + SVG chart here */}
+</LabNotes>
+</ScrollReveal>
+
+<ScrollReveal>
+<SectionLabel label="III" />
+
+## [Subgroup Analysis / Deeper Dig]
+
+[The analysis that produced the core finding.]
+</ScrollReveal>
+
+{/* ═══════════════════════════════════════════════
+    PART III — THE FINDING (section IV–V)
+    Present the unexpected result with full rigor.
+    The surprise must be GENUINE.
+    ═══════════════════════════════════════════════ */}
+
+<ScrollReveal>
+<SectionLabel label="IV" />
+
+## [The Core Result]
+
+[State the finding. Include the key metric/number.
+This is the empirical heart of the essay.]
+
+<LabNotes id="core-finding" triggerLabel="[Core Finding Dashboard]">
+  {/* The main chart / visualization */}
+</LabNotes>
+</ScrollReveal>
+
+{/* ═══════════════════════════════════════════════
+    PART IV — THE PHILOSOPHICAL EMERGENCE (sections VI–VII)
+    The philosophy arrives UNANNOUNCED, late.
+    Name the structure the data has operationalized.
+    ═══════════════════════════════════════════════ */}
+
+<ScrollReveal>
+<SectionLabel label="V" />
+
+## [The Question You Didn't Set Out to Ask]
+
+[You didn't plan to ask this. The data pushed you here.
+Now name the philosophical structure.]
+
+<Philosophy>
+"[A quote from the philosopher whose framework the data
+has inadvertently operationalized.]"
+
+— **[Philosopher Name]** (from *[Work Title]*, [Year])
+</Philosophy>
+
+[Connect the finding to the philosophical framework.
+The reader should feel that the data *forced* this connection.]
+</ScrollReveal>
+
+<ScrollReveal>
+<SectionLabel label="VI" />
+
+## [Deepening the Connection]
+
+[Develop the philosophical thread. Show how the finding
+reframes (not answers) the original philosophical question.]
+</ScrollReveal>
+
+{/* ═══════════════════════════════════════════════
+    PART V — THE QUIET QUESTION (coda)
+    End with the cleaner version of the question.
+    Place a number next to a sentence from a philosopher.
+    ═══════════════════════════════════════════════ */}
+
+<ScrollReveal>
+<div class="border-t border-ink-faint mt-16 pt-16 coda">
+
+[A metric — a coefficient, a ratio, a p-value — sits here
+next to a sentence from the philosopher. Neither explains
+the other. Both are necessary.]
+
+[Final short lines. Rhythmic. Prose-poetic.
+Each a separate paragraph.]
+
+</div>
+</ScrollReveal>

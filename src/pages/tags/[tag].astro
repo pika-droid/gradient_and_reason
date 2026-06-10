@@ -7,11 +7,12 @@ import { getCollection } from 'astro:content';
 
 export async function getStaticPaths() {
   const posts = await getCollection('blog');
-  const uniqueTags = [...new Set(posts.flatMap(post => post.data.tags || []))];
+  const activePosts = posts.filter(post => !post.data.draft);
+  const uniqueTags = [...new Set(activePosts.flatMap(post => post.data.tags || []))];
 
   return uniqueTags.map(tag => {
-    const filteredPosts = posts
-      .filter(post => post.data.tags?.includes(tag) && !post.data.draft)
+    const filteredPosts = activePosts
+      .filter(post => post.data.tags?.includes(tag))
       .sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf());
     return {
       params: { tag },

@@ -9,9 +9,21 @@ interface Props {
   title: string;
   description: string;
   image?: string;
+  keywords?: string[];
+  essayType?: 'philosophical' | 'empirical' | 'portfolio';
+  depth?: 'foundational' | 'intermediate' | 'advanced';
+  date?: Date;
 }
 
-const { title, description, image = '/og-default.png' } = Astro.props;
+const { 
+  title, 
+  description, 
+  image = '/og-default.png',
+  keywords = [],
+  essayType,
+  depth,
+  date
+} = Astro.props;
 const canonicalURL = new URL(Astro.url.pathname, 'https://gradient-and-reason.vercel.app');
 const imageUrl = new URL(image, 'https://gradient-and-reason.vercel.app');
 ---
@@ -24,9 +36,32 @@ const imageUrl = new URL(image, 'https://gradient-and-reason.vercel.app');
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <title>{title}</title>
     <meta name="description" content={description} />
+    {keywords && keywords.length > 0 && <meta name="keywords" content={keywords.join(', ')} />}
     
     <!-- Canonical URL -->
     <link rel="canonical" href={canonicalURL} />
+
+    <!-- Structured Data (JSON-LD) -->
+    {date && (
+      <script type="application/ld+json" is:inline set:html={JSON.stringify({
+        "@context": "https://schema.org",
+        "@type": essayType === "empirical" ? "TechArticle" : "Article",
+        "headline": title,
+        "description": description,
+        "image": imageUrl.toString(),
+        "datePublished": date instanceof Date ? date.toISOString() : date,
+        "author": {
+          "@type": "Person",
+          "name": "Ashmit Mandal"
+        },
+        "publisher": {
+          "@type": "Organization",
+          "name": "Gradient and Reason"
+        },
+        "keywords": keywords ? keywords.join(', ') : "",
+        "url": canonicalURL.toString()
+      })} />
+    )}
 
     <!-- Open Graph / Facebook -->
     <meta property="og:type" content="website" />

@@ -4,7 +4,7 @@ import ScrollReveal from '../components/ScrollReveal.astro';
 import ReadingProgress from '../components/ReadingProgress.astro';
 import TableOfContents from '../components/TableOfContents.astro';
 
-const { title, description, date, kicker, subtitle, readingTime, tags, headings = [], image } = Astro.props;
+const { title, description, date, kicker, subtitle, readingTime, tags, headings = [], image, keywords, essayType, depth } = Astro.props;
 
 const formattedDate = new Date(date).toLocaleDateString('en-US', {
   year: 'numeric',
@@ -13,7 +13,7 @@ const formattedDate = new Date(date).toLocaleDateString('en-US', {
 });
 ---
 
-<BaseLayout title={title} description={description} image={image}>
+<BaseLayout title={title} description={description} image={image} keywords={keywords} essayType={essayType} depth={depth} date={date}>
   <ReadingProgress />
   
   <div class="max-w-[1100px] w-full mx-auto px-6 py-12 md:py-32 flex flex-col xl:flex-row gap-12 relative min-w-0">

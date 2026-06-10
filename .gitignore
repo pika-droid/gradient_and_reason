@@ -28,3 +28,14 @@ pnpm-debug.log*
 skills/
 reference/
 references/
+
+# Jupyter Notebook checkpoints
+.ipynb_checkpoints/
+**/.ipynb_checkpoints/
+
+# Python environment and cache files
+.venv/
+venv/
+env/
+__pycache__/
+*.pyc

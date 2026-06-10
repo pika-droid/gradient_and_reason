@@ -12,6 +12,9 @@ const blog = defineCollection({
     draft: z.boolean().default(false),
     kicker: z.string().optional(),
     subtitle: z.string().optional(),
+    keywords: z.array(z.string()).default([]),
+    essayType: z.enum(["philosophical", "empirical", "portfolio"]).optional(),
+    depth: z.enum(["foundational", "intermediate", "advanced"]).optional(),
   }),
 });
 

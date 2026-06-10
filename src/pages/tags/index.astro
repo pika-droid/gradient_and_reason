@@ -4,7 +4,7 @@ import ScrollReveal from '../../components/ScrollReveal.astro';
 import SectionLabel from '../../components/SectionLabel.astro';
 import { getCollection } from 'astro:content';
 
-const posts = await getCollection('blog');
+const posts = (await getCollection('blog')).filter(post => !post.data.draft);
 const tags = [...new Set(posts.flatMap(post => post.data.tags || []))].sort();
 ---
 

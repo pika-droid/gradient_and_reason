@@ -1,0 +1,488 @@
+---
+interface Props {
+  id?: string;
+  sourceLabel?: string;
+  targetLabel?: string;
+  sourceColor?: string;
+  targetColor?: string;
+  /** JSON array of [x, density] pairs for source distribution */
+  sourceData?: string;
+  /** JSON array of [x, density] pairs for target distribution */
+  targetData?: string;
+  /** Number of transport arrows to display */
+  arrowCount?: number;
+}
+
+const {
+  id = 'geodesic',
+  sourceLabel = 'μ₀ (source)',
+  targetLabel = 'μ₁ (target)',
+  sourceColor = '#df9e6c',
+  targetColor = '#7c8fa6',
+  sourceData,
+  targetData,
+  arrowCount = 24,
+} = Astro.props;
+---
+
+<div
+  class="geodesic-container my-12 p-6 border border-ink-faint bg-surface rounded-lg select-none transition-colors duration-300"
+  id={`${id}-root`}
+  data-source-label={sourceLabel}
+  data-target-label={targetLabel}
+  data-source-color={sourceColor}
+  data-target-color={targetColor}
+  data-source-data={sourceData || ''}
+  data-target-data={targetData || ''}
+  data-arrow-count={String(arrowCount)}
+>
+  <div class="sandbox-meta flex justify-between items-center mb-4 border-b border-ink-faint pb-3 flex-wrap gap-2">
+    <span class="sandbox-title font-garamond text-[0.75rem] tracking-[0.15em] uppercase text-accent font-medium">
+      Wasserstein Geodesic Transport
+    </span>
+    <span class="sandbox-instructions text-[0.7rem] text-ink-dim italic">
+      Drag the slider to traverse the optimal transport path
+    </span>
+  </div>
+  <canvas id={`${id}-canvas`} class="w-full h-80 bg-[#09090a] rounded border border-white/5 cursor-ew-resize max-w-full"></canvas>
+  <div class="sandbox-console bg-[#09090a] border-t border-white/5 p-4 font-mono text-[0.72rem] text-code-txt rounded-b -mt-1">
+    <div class="console-line flex justify-between mb-1 flex-wrap gap-2">
+      <span>Interpolation: <span id={`${id}-val-t`} class="text-ink-strong">t = 0.00</span></span>
+      <span>W₂ Distance: <span id={`${id}-val-w2`} class="text-ink-strong">0.000</span></span>
+    </div>
+    <div class="console-line flex justify-between flex-wrap gap-2">
+      <span>Transport Cost: <span id={`${id}-val-cost`} class="text-ink-strong">0.000</span></span>
+      <span>Distribution: <span id={`${id}-val-dist`} class="text-accent-glowing">{sourceLabel}</span></span>
+    </div>
+  </div>
+</div>
+
+<script>
+  function initGeodesic() {
+    // Find all geodesic containers (supports multiple instances)
+    const roots = document.querySelectorAll<HTMLElement>('.geodesic-container');
+    roots.forEach(root => {
+      const idPrefix = root.id.replace('-root', '');
+      const canvas = document.getElementById(`${idPrefix}-canvas`) as HTMLCanvasElement | null;
+      if (!canvas || canvas.dataset.initialized === 'true') return;
+      canvas.dataset.initialized = 'true';
+
+      const ctx = canvas.getContext('2d');
+      if (!ctx) return;
+
+      // Read configuration from data attributes
+      const srcLabel = root.dataset.sourceLabel || 'μ₀';
+      const tgtLabel = root.dataset.targetLabel || 'μ₁';
+      const srcColor = root.dataset.sourceColor || '#df9e6c';
+      const tgtColor = root.dataset.targetColor || '#7c8fa6';
+      const numArrows = parseInt(root.dataset.arrowCount || '24', 10);
+
+      // DOM readout elements
+      const valT = document.getElementById(`${idPrefix}-val-t`);
+      const valW2 = document.getElementById(`${idPrefix}-val-w2`);
+      const valCost = document.getElementById(`${idPrefix}-val-cost`);
+      const valDist = document.getElementById(`${idPrefix}-val-dist`);
+
+      // ─── Distribution Math ────────────────────────────────
+      const N = 200; // grid resolution
+      const xMin = -4.0;
+      const xMax = 4.0;
+      const dx = (xMax - xMin) / N;
+
+      // Gaussian helper
+      function gaussian(x: number, mu: number, sigma: number): number {
+        const z = (x - mu) / sigma;
+        return Math.exp(-0.5 * z * z) / (sigma * Math.sqrt(2 * Math.PI));
+      }
+
+      // Build density arrays
+      function buildDensity(data: string | undefined, fallback: (x: number) => number): number[] {
+        if (data && data.trim().length > 0) {
+          try {
+            const pairs: [number, number][] = JSON.parse(data);
+            // Interpolate onto our grid
+            const arr = new Array(N).fill(0);
+            for (let i = 0; i < N; i++) {
+              const x = xMin + i * dx;
+              // Find surrounding data points and lerp
+              let lo = 0, hi = pairs.length - 1;
+              for (let j = 0; j < pairs.length - 1; j++) {
+                if (pairs[j][0] <= x && pairs[j+1][0] >= x) {
+                  lo = j; hi = j + 1; break;
+                }
+              }
+              if (x <= pairs[0][0]) { arr[i] = pairs[0][1]; }
+              else if (x >= pairs[pairs.length-1][0]) { arr[i] = pairs[pairs.length-1][1]; }
+              else {
+                const frac = (x - pairs[lo][0]) / (pairs[hi][0] - pairs[lo][0]);
+                arr[i] = pairs[lo][1] * (1 - frac) + pairs[hi][1] * frac;
+              }
+            }
+            return arr;
+          } catch { /* fall through to default */ }
+        }
+        const arr = new Array(N).fill(0);
+        for (let i = 0; i < N; i++) arr[i] = fallback(xMin + i * dx);
+        return arr;
+      }
+
+      // Default distributions: bimodal → unimodal
+      const srcDensity = buildDensity(root.dataset.sourceData, (x: number) =>
+        0.45 * gaussian(x, -1.4, 0.55) + 0.55 * gaussian(x, 1.1, 0.6)
+      );
+      const tgtDensity = buildDensity(root.dataset.targetData, (x: number) =>
+        gaussian(x, 0.2, 0.85)
+      );
+
+      // Normalize densities
+      function normalize(arr: number[]): void {
+        let sum = 0;
+        for (let i = 0; i < arr.length; i++) sum += arr[i] * dx;
+        if (sum > 0) for (let i = 0; i < arr.length; i++) arr[i] /= sum;
+      }
+      normalize(srcDensity);
+      normalize(tgtDensity);
+
+      // Compute CDF from density
+      function cdf(density: number[]): number[] {
+        const c = new Array(density.length).fill(0);
+        c[0] = density[0] * dx;
+        for (let i = 1; i < density.length; i++) {
+          c[i] = c[i-1] + density[i] * dx;
+        }
+        // Normalize to [0, 1]
+        const total = c[c.length - 1];
+        if (total > 0) for (let i = 0; i < c.length; i++) c[i] /= total;
+        c[c.length - 1] = 1.0; // ensure exact 1
+        return c;
+      }
+
+      // Compute quantile function (inverse CDF) via linear interpolation
+      function quantile(cdfArr: number[], nSamples: number): number[] {
+        const q = new Array(nSamples).fill(0);
+        for (let j = 0; j < nSamples; j++) {
+          const u = j / (nSamples - 1);
+          // Binary search for the interval
+          let lo = 0, hi = cdfArr.length - 1;
+          while (lo < hi - 1) {
+            const mid = (lo + hi) >> 1;
+            if (cdfArr[mid] < u) lo = mid; else hi = mid;
+          }
+          // Linear interpolation
+          const cLo = cdfArr[lo], cHi = cdfArr[hi];
+          const frac = (cHi > cLo) ? (u - cLo) / (cHi - cLo) : 0;
+          q[j] = xMin + (lo + frac) * dx;
+        }
+        return q;
+      }
+
+      const M = 512; // quantile samples
+      const srcCDF = cdf(srcDensity);
+      const tgtCDF = cdf(tgtDensity);
+      const srcQ = quantile(srcCDF, M);
+      const tgtQ = quantile(tgtCDF, M);
+
+      // Compute W₂ distance
+      let w2Squared = 0;
+      for (let j = 0; j < M; j++) {
+        const d = srcQ[j] - tgtQ[j];
+        w2Squared += d * d;
+      }
+      w2Squared /= M;
+      const w2 = Math.sqrt(w2Squared);
+
+      // Geodesic quantile at parameter t
+      function geodesicQuantile(t: number): number[] {
+        const q = new Array(M).fill(0);
+        for (let j = 0; j < M; j++) {
+          q[j] = (1 - t) * srcQ[j] + t * tgtQ[j];
+        }
+        return q;
+      }
+
+      // Convert quantile samples back to density (via histogram)
+      function quantileToDensity(q: number[]): number[] {
+        const bins = new Array(N).fill(0);
+        for (let j = 0; j < q.length; j++) {
+          const idx = Math.floor((q[j] - xMin) / dx);
+          if (idx >= 0 && idx < N) bins[idx]++;
+        }
+        // Normalize to density
+        const total = q.length * dx;
+        for (let i = 0; i < N; i++) bins[i] /= total;
+        // Light smoothing (3-point moving average, 2 passes)
+        for (let pass = 0; pass < 2; pass++) {
+          const smoothed = [...bins];
+          for (let i = 1; i < N - 1; i++) {
+            smoothed[i] = 0.25 * bins[i-1] + 0.5 * bins[i] + 0.25 * bins[i+1];
+          }
+          for (let i = 0; i < N; i++) bins[i] = smoothed[i];
+        }
+        return bins;
+      }
+
+      // ─── Interaction State ────────────────────────────────
+      let t = 0.0;
+      let isDragging = false;
+
+      function xToCanvas(x: number): number {
+        const pad = 40;
+        return pad + ((x - xMin) / (xMax - xMin)) * (canvas!.width - 2 * pad);
+      }
+
+      function canvasToT(cx: number): number {
+        const pad = 40;
+        return Math.max(0, Math.min(1, (cx - pad) / (canvas!.width - 2 * pad)));
+      }
+
+      function densityToCanvasY(d: number, maxDensity: number): number {
+        const plotTop = 30;
+        const plotBottom = canvas!.height - 50;
+        const plotH = plotBottom - plotTop;
+        return plotBottom - (d / maxDensity) * plotH * 0.85;
+      }
+
+      function lerpColor(c1: string, c2: string, frac: number): string {
+        const r1 = parseInt(c1.slice(1,3), 16), g1 = parseInt(c1.slice(3,5), 16), b1 = parseInt(c1.slice(5,7), 16);
+        const r2 = parseInt(c2.slice(1,3), 16), g2 = parseInt(c2.slice(3,5), 16), b2 = parseInt(c2.slice(5,7), 16);
+        const r = Math.round(r1 + (r2 - r1) * frac);
+        const g = Math.round(g1 + (g2 - g1) * frac);
+        const b = Math.round(b1 + (b2 - b1) * frac);
+        return `rgb(${r},${g},${b})`;
+      }
+
+      // ─── Drawing ──────────────────────────────────────────
+      function draw() {
+        if (!ctx || !canvas) return;
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+        // Background grid
+        ctx.strokeStyle = 'rgba(255, 255, 255, 0.02)';
+        ctx.lineWidth = 1;
+        const gridStep = canvas.width / 16;
+        for (let gx = 0; gx < canvas.width; gx += gridStep) {
+          ctx.beginPath(); ctx.moveTo(gx, 0); ctx.lineTo(gx, canvas.height); ctx.stroke();
+        }
+        for (let gy = 0; gy < canvas.height; gy += gridStep) {
+          ctx.beginPath(); ctx.moveTo(0, gy); ctx.lineTo(canvas.width, gy); ctx.stroke();
+        }
+
+        // Compute current geodesic density
+        const geoQ = geodesicQuantile(t);
+        const geoDensity = quantileToDensity(geoQ);
+
+        // Find max density for scaling
+        let maxD = 0;
+        for (let i = 0; i < N; i++) {
+          maxD = Math.max(maxD, srcDensity[i], tgtDensity[i], geoDensity[i]);
+        }
+        maxD *= 1.15; // headroom
+
+        const plotBottom = canvas.height - 50;
+
+        // Draw source distribution (ghost)
+        drawDistribution(srcDensity, maxD, `${srcColor}25`, `${srcColor}08`);
+        // Draw target distribution (ghost)
+        drawDistribution(tgtDensity, maxD, `${tgtColor}25`, `${tgtColor}08`);
+
+        // Draw transport arrows (connecting source quantiles to target quantiles)
+        const arrowStep = Math.max(1, Math.floor(M / numArrows));
+        for (let j = 0; j < M; j += arrowStep) {
+          const x0 = xToCanvas(srcQ[j]);
+          const x1 = xToCanvas(tgtQ[j]);
+          // Current position along the arrow
+          const xCur = xToCanvas(geoQ[j]);
+
+          // Draw the full transport line (very faint)
+          ctx.strokeStyle = 'rgba(255, 255, 255, 0.03)';
+          ctx.lineWidth = 1;
+          ctx.beginPath();
+          ctx.moveTo(x0, plotBottom + 8);
+          ctx.lineTo(x1, plotBottom + 8);
+          ctx.stroke();
+
+          // Draw progress dot
+          ctx.fillStyle = lerpColor(srcColor, tgtColor, t);
+          ctx.globalAlpha = 0.4;
+          ctx.beginPath();
+          ctx.arc(xCur, plotBottom + 8, 2, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.globalAlpha = 1.0;
+        }
+
+        // Draw geodesic distribution (main, solid)
+        const geoColor = lerpColor(srcColor, tgtColor, t);
+        drawDistribution(geoDensity, maxD, geoColor, `${geoColor}30`);
+
+        // Draw geodesic distribution curve (bold outline)
+        ctx.strokeStyle = geoColor;
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        for (let i = 0; i < N; i++) {
+          const cx = xToCanvas(xMin + i * dx);
+          const cy = densityToCanvasY(geoDensity[i], maxD);
+          if (i === 0) ctx.moveTo(cx, cy); else ctx.lineTo(cx, cy);
+        }
+        ctx.stroke();
+
+        // Draw x-axis
+        ctx.strokeStyle = 'rgba(255, 255, 255, 0.08)';
+        ctx.lineWidth = 1;
+        ctx.beginPath();
+        ctx.moveTo(xToCanvas(xMin), plotBottom);
+        ctx.lineTo(xToCanvas(xMax), plotBottom);
+        ctx.stroke();
+
+        // Slider track
+        const sliderY = canvas.height - 20;
+        const sliderLeft = xToCanvas(xMin);
+        const sliderRight = xToCanvas(xMax);
+        ctx.strokeStyle = 'rgba(255, 255, 255, 0.1)';
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.moveTo(sliderLeft, sliderY);
+        ctx.lineTo(sliderRight, sliderY);
+        ctx.stroke();
+
+        // Slider filled portion
+        const sliderPos = sliderLeft + t * (sliderRight - sliderLeft);
+        ctx.strokeStyle = geoColor;
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.moveTo(sliderLeft, sliderY);
+        ctx.lineTo(sliderPos, sliderY);
+        ctx.stroke();
+
+        // Slider handle glow
+        ctx.fillStyle = `${geoColor}20`;
+        ctx.beginPath();
+        ctx.arc(sliderPos, sliderY, 14, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Slider handle
+        ctx.fillStyle = geoColor;
+        ctx.beginPath();
+        ctx.arc(sliderPos, sliderY, 6, 0, Math.PI * 2);
+        ctx.fill();
+
+        ctx.strokeStyle = '#ffffff';
+        ctx.lineWidth = 1.5;
+        ctx.beginPath();
+        ctx.arc(sliderPos, sliderY, 8, 0, Math.PI * 2);
+        ctx.stroke();
+
+        // Labels
+        ctx.font = "9px 'JetBrains Mono', monospace";
+        ctx.textAlign = 'left';
+        ctx.fillStyle = `${srcColor}88`;
+        ctx.fillText(srcLabel.toUpperCase(), sliderLeft, sliderY - 12);
+        ctx.textAlign = 'right';
+        ctx.fillStyle = `${tgtColor}88`;
+        ctx.fillText(tgtLabel.toUpperCase(), sliderRight, sliderY - 12);
+
+        // t label
+        ctx.textAlign = 'center';
+        ctx.fillStyle = 'rgba(255, 255, 255, 0.5)';
+        ctx.fillText(`t = ${t.toFixed(2)}`, sliderPos, sliderY - 14);
+
+        // Update readouts
+        const currentCost = t * t * w2Squared;
+        if (valT) valT.textContent = `t = ${t.toFixed(3)}`;
+        if (valW2) valW2.textContent = w2.toFixed(3);
+        if (valCost) valCost.textContent = (Math.sqrt(currentCost)).toFixed(3);
+        if (valDist) {
+          if (t < 0.01) valDist.textContent = srcLabel;
+          else if (t > 0.99) valDist.textContent = tgtLabel;
+          else valDist.textContent = `μ_${t.toFixed(2)}`;
+        }
+      }
+
+      function drawDistribution(density: number[], maxD: number, strokeColor: string, fillColor: string) {
+        if (!ctx || !canvas) return;
+        const plotBottom = canvas!.height - 50;
+
+        // Filled area
+        ctx.fillStyle = fillColor;
+        ctx.beginPath();
+        ctx.moveTo(xToCanvas(xMin), plotBottom);
+        for (let i = 0; i < N; i++) {
+          const cx = xToCanvas(xMin + i * dx);
+          const cy = densityToCanvasY(density[i], maxD);
+          ctx.lineTo(cx, cy);
+        }
+        ctx.lineTo(xToCanvas(xMax), plotBottom);
+        ctx.closePath();
+        ctx.fill();
+
+        // Stroke
+        ctx.strokeStyle = strokeColor;
+        ctx.lineWidth = 1;
+        ctx.beginPath();
+        for (let i = 0; i < N; i++) {
+          const cx = xToCanvas(xMin + i * dx);
+          const cy = densityToCanvasY(density[i], maxD);
+          if (i === 0) ctx.moveTo(cx, cy); else ctx.lineTo(cx, cy);
+        }
+        ctx.stroke();
+      }
+
+      // ─── Event Handling ───────────────────────────────────
+      function getPos(e: MouseEvent | TouchEvent): { x: number; y: number } {
+        const rect = canvas!.getBoundingClientRect();
+        const clientX = 'touches' in e ? e.touches[0].clientX : e.clientX;
+        const clientY = 'touches' in e ? e.touches[0].clientY : e.clientY;
+        return { x: clientX - rect.left, y: clientY - rect.top };
+      }
+
+      function onStart(e: MouseEvent | TouchEvent) {
+        const pos = getPos(e);
+        // Check if near slider area (bottom 35px of canvas)
+        if (pos.y > canvas!.height - 40) {
+          isDragging = true;
+          t = canvasToT(pos.x);
+          draw();
+          if (e.cancelable) e.preventDefault();
+        }
+      }
+
+      function onMove(e: MouseEvent | TouchEvent) {
+        if (!isDragging) return;
+        if (e.cancelable) e.preventDefault();
+        const pos = getPos(e);
+        t = canvasToT(pos.x);
+        draw();
+      }
+
+      function onEnd() { isDragging = false; }
+
+      canvas.addEventListener('mousedown', onStart);
+      canvas.addEventListener('mousemove', onMove);
+      window.addEventListener('mouseup', onEnd);
+      canvas.addEventListener('touchstart', onStart, { passive: false });
+      canvas.addEventListener('touchmove', onMove, { passive: false });
+      window.addEventListener('touchend', onEnd);
+
+      // Resize handling
+      function resize() {
+        if (!canvas) return;
+        const rect = canvas.getBoundingClientRect();
+        canvas.width = rect.width;
+        canvas.height = rect.height;
+        draw();
+      }
+
+      window.addEventListener('resize', resize);
+      resize();
+
+      // Astro page-swap cleanup
+      document.addEventListener('astro:before-swap', () => {
+        window.removeEventListener('resize', resize);
+        window.removeEventListener('mouseup', onEnd);
+        window.removeEventListener('touchend', onEnd);
+      }, { once: true });
+    });
+  }
+
+  initGeodesic();
+  document.addEventListener('astro:after-swap', initGeodesic);
+</script>
