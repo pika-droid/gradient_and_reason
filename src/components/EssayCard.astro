@@ -41,16 +41,10 @@ const paddedIndex = index !== undefined ? String(index).padStart(2, '0') : undef
       {description}
     </p>
 
-    <!-- Badges & Tags -->
-    {((tags && tags.length > 0) || essayType || depth) && (
+    <!-- Tags -->
+    {tags && tags.length > 0 && (
       <div class="flex flex-wrap gap-2 mt-3">
-        {essayType && (
-          <span class="essay-tag !border-accent/40 !text-accent/90">{essayType}</span>
-        )}
-        {depth && (
-          <span class="essay-tag !border-accent-glowing/40 !text-accent-glowing/90">{depth}</span>
-        )}
-        {tags && tags.map((tag) => (
+        {tags.map((tag) => (
           <span class="essay-tag">{tag}</span>
         ))}
       </div>
