@@ -102,7 +102,7 @@ All draft files must include the following metadata:
 title: "Your Essay Title"
 description: "A summary of the essay under 160 characters (important for search indexing & SEO)."
 date: YYYY-MM-DD
-tags: ["ml", "philosophy"]
+tags: ["representation-learning", "epistemology"]
 kicker: "THE TOPIC OVERVIEW STATEMENT"
 subtitle: "A subtitle/secondary title displayed in italics"
 draft: true # Default to true. Change to false only when ready to publish.

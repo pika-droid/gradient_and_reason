@@ -9,7 +9,7 @@ Every new essay must be placed in `src/content/blog/` as a `.mdx` file.
 title: "The Latent Manifold"
 description: "Exploring the geometry of representations in high-dimensional neural spaces."
 date: 2026-05-24
-tags: ["ml", "philosophy"]
+tags: ["representation-learning", "epistemology"]
 kicker: "On machine knowledge & philosophical loss"
 subtitle: "An inquiry into the coordinates of machine experience"
 draft: true
@@ -31,7 +31,7 @@ Every essay's YAML frontmatter must contain these fields:
 * `title`: The main essay title (wrapped in double quotes).
 * `description`: Under 160 characters (critical for SEO).
 * `date`: In `YYYY-MM-DD` format.
-* `tags`: Array of lowercased topic strings (e.g. `["ml", "philosophy"]`).
+* `tags`: Array of lowercased, topic-specific strings focusing on precise technical/philosophical details rather than broad generalizations (e.g. `["causal-inference", "epistemology", "representation-learning"]` instead of generic `["ml", "philosophy"]`).
 * `kicker`: Uppercase topic statement displayed at the very top.
 * `subtitle`: Secondary title in italics.
 * `draft`: Defaults to `true` for new drafts to prevent premature live deployment.
