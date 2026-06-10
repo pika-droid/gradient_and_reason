@@ -59,6 +59,8 @@ const featuredPosts = await Promise.all(
               readingTime={post.readingTime}
               tags={post.data.tags}
               index={idx + 1}
+              essayType={post.data.essayType}
+              depth={post.data.depth}
             />
           ))}
           <div class="mt-4 flex justify-end">

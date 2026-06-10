@@ -49,6 +49,9 @@ const { posts } = Astro.props;
             description={post.data.description}
             slug={post.id}
             date={post.data.date}
+            tags={post.data.tags}
+            essayType={post.data.essayType}
+            depth={post.data.depth}
           />
         ))}
       </div>
