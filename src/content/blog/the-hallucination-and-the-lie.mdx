@@ -109,33 +109,32 @@ $$P(X_t = x \mid X_{\lt t}) = \text{softmax}(W \cdot h_t)_x$$
 To the loss function, a factually correct token and a hallucinated token are treated identically if they have the same probability under the training distribution. The model does not check an external database of physical facts. It simply evaluates the alignment of the token with the surrounding context.
 
 <CodeTabs tabs={["PyTorch (Loss)", "Conceptual JS"]}>
-  <div slot="tab-0" label="PyTorch (Loss)">
-  ```python
-  # Evaluating loss of factual negation vs fluent hallucination
-  import torch
-  import torch.nn.functional as F
 
-  # Target token index under two completions
-  # ' now' (cliché) vs ' no' (factual negation)
-  logits = model(input_ids).logits[:, -1, :] # logit prediction
-  probs = F.softmax(logits, dim=-1)
+```python
+# Evaluating loss of factual negation vs fluent hallucination
+import torch
+import torch.nn.functional as F
 
-  # Factual negation lies in low-probability density
-  loss_cliche = -torch.log(probs[0, token_cliche])  # Low loss (~1.2 nats)
-  loss_factual = -torch.log(probs[0, token_factual]) # High loss (~3.6 nats)
-  ```
-  </div>
-  <div slot="tab-1" label="Conceptual JS">
-  ```javascript
-  // Next-token prediction has no semantic validation
-  function nextToken(context) {
-    const logits = neuralNetwork.predict(context);
-    const probabilities = softmax(logits);
-    // The objective is sequence likelihood, not physical referents
-    return sample(probabilities); 
-  }
-  ```
-  </div>
+# Target token index under two completions
+# ' now' (cliché) vs ' no' (factual negation)
+logits = model(input_ids).logits[:, -1, :] # logit prediction
+probs = F.softmax(logits, dim=-1)
+
+# Factual negation lies in low-probability density
+loss_cliche = -torch.log(probs[0, token_cliche])  # Low loss (~1.2 nats)
+loss_factual = -torch.log(probs[0, token_factual]) # High loss (~3.6 nats)
+```
+
+```javascript
+// Next-token prediction has no semantic validation
+function nextToken(context) {
+  const logits = neuralNetwork.predict(context);
+  const probabilities = softmax(logits);
+  // The objective is sequence likelihood, not physical referents
+  return sample(probabilities); 
+}
+```
+
 </CodeTabs>
 
 <div class="spectrum-container spectrum-centered">
