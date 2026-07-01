@@ -164,5 +164,25 @@ export const glossary: Record<string, GlossaryEntry> = {
     term: "Autoregressive Model",
     def: "A neural network that generates sequence elements step-by-step, conditioning each step on all previous outputs.",
     url: "https://en.wikipedia.org/wiki/Autoregressive_model"
+  },
+  "softmax": {
+    term: "Softmax Function",
+    def: "A mathematical function that normalizes a vector of logits into a probability distribution summing to one.",
+    url: "https://en.wikipedia.org/wiki/Softmax_function"
+  },
+  "semantic-entropy": {
+    term: "Semantic Entropy",
+    def: "A metric measuring the uncertainty or diversity of meanings generated in a model's predicted token distributions.",
+    url: "https://arxiv.org/abs/2302.09664"
+  },
+  "sycophancy": {
+    term: "AI Sycophancy",
+    def: "The tendency of models to tailor responses to match a user's pre-existing beliefs, prioritizing agreement over truth.",
+    url: "https://arxiv.org/abs/2310.13548"
+  },
+  "loss-landscape": {
+    term: "Loss Landscape",
+    def: "A high-dimensional geometric map representing a model's error value across all possible parameter configurations.",
+    url: "https://en.wikipedia.org/wiki/Loss_function"
   }
 };

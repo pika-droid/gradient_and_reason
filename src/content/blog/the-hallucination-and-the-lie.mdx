@@ -100,7 +100,7 @@ Let us translate Frankfurt’s philosophical concept of indifference into the la
 
 $$\mathcal{L} = -\sum_{i} \log P(x_i \mid x_{\lt i})$$
 
-Where the transition probability for a token $x$ at step $t$ given the history $X_{\lt t}$ is computed via the softmax over the model's output logits:
+Where the transition probability for a token $x$ at step $t$ given the history $X_{\lt t}$ is computed via the <Term id="softmax">softmax</Term> function over the model's output logits:
 
 $$P(X_t = x \mid X_{\lt t}) = \text{softmax}(W \cdot h_t)_x$$
 
@@ -116,7 +116,7 @@ To the loss function, a factually correct token and a hallucinated token are tre
 
 </div>
 
-The loss landscape has no dimension for "existence." It has only dimensions of probability. Fluency is an attractor state in this high-dimensional probability manifold, and factual truth is merely a sparse, unweighted subset of that fluency.
+The <Term id="loss-landscape">loss landscape</Term> has no dimension for "existence." It has only dimensions of probability. Fluency is an attractor state in this high-dimensional probability manifold, and factual truth is merely a sparse, unweighted subset of that fluency.
 
 <LabNotes id="loss-dynamics" triggerLabel="Empirical Verification: Loss Landscapes & Attractors">
   <h4 class="dash-heading">Loss Gradient Dynamics</h4>
@@ -162,7 +162,7 @@ The loss landscape has no dimension for "existence." It has only dimensions of p
 
 ## The Confidence Inversion
 
-When humans communicate, we generally associate confidence with accuracy. We assume that when a model does not know a fact, its token probabilities will be low, reflecting high entropy. The empirical evidence, however, reveals a striking phenomenon: the **Confidence Inversion**. 
+When humans communicate, we generally associate confidence with accuracy. We assume that when a model does not know a fact, its token probabilities will be low, reflecting high <Term id="semantic-entropy">semantic entropy</Term>. The empirical evidence, however, reveals a striking phenomenon: the **Confidence Inversion**. 
 
 When a model is prompted with an obscure or completely fictional query, it often generates hallucinated completions with *higher* token-level confidence (lower entropy) than its factual completions of obscure truths. 
 
@@ -271,6 +271,8 @@ Statistical Average ───> Zero Marginal Cost ───> Fluent Testimony (Z
 ```
 
 The machine does not have a concept of truth to violate. It has only a concept of likelihood to satisfy. When we rely on style, tone, and grammatical structure as indicators of authority, we are using metrics designed for human speakers. The machine has learned to satisfy those metrics perfectly, bypassing the necessity of truth.
+
+Furthermore, this architecture introduces the compounding danger of <Term id="sycophancy">AI sycophancy</Term>—the tendency of models to align with a user's beliefs, framing, or emotions, prioritizing agreeable interaction over factual correction. A model that optimizes for a user's ideological comfort is engaging in a highly refined form of Frankfurt's bullshit; it disregards the truth entirely in order to successfully navigate the social parameters of the conversation.
 </ScrollReveal>
 
 <ScrollReveal>
@@ -296,6 +298,36 @@ The flaw does not reside in the machine’s code, but in our own criteria for ev
 We must learn to look past the perfect prose. We must recognize that the machine is a mirror, reflecting our own preference for clean fictions over messy, incomplete truths. 
 
 If the machine writes beautiful, confident lies, it is because we have taught it that coherence is the only thing we are willing to reward.
+</ScrollReveal>
+
+<ScrollReveal>
+<LabNotes id="experimental-methods" triggerLabel="Open Methods: Experimental Protocol">
+  <h4 class="dash-heading">Experimental Protocol & Reproducibility</h4>
+  <p class="dash-desc">Complete specification of the technical setup and hyperparameters utilized for the empirical observations in this essay.</p>
+
+  <div class="dash-grid-metrics">
+    <div class="metric-card">
+      <p class="metric-label">Evaluation Hardware</p>
+      <p class="metric-value text-amber-500">RTX 4070</p>
+      <p class="metric-subtext">8GB VRAM · i7-14700HX</p>
+    </div>
+    <div class="metric-card">
+      <p class="metric-label">Model Target</p>
+      <p class="metric-value text-yellow-600">GPT-2 Med</p>
+      <p class="metric-subtext">345M parameters · huggingface</p>
+    </div>
+    <div class="metric-card">
+      <p class="metric-label">Greedy Search</p>
+      <p class="metric-value text-stone-500">T = 0.00</p>
+      <p class="metric-subtext">deterministic decode paths</p>
+    </div>
+  </div>
+
+  <div class="dash-finding">
+    <p><strong>Parameters & Setup:</strong> All log-probabilities were computed on a local CUDA device utilizing PyTorch (version 2.12.1) and Hugging Face Transformers. The model used is <code>gpt-2-medium</code> (345M parameters) under greedy decoding.</p>
+    <p>For each prompt, token probability was extracted from the model's logits via the softmax function, and sequence confidence was calculated as the cumulative sum of token log-probabilities. In all trials, the average token log-probability of the fluent hallucination (~ -1.22) was higher than the factual negation (~ -3.19), validating a 100% confidence inversion rate.</p>
+  </div>
+</LabNotes>
 </ScrollReveal>
 
 <div class="coda border-t border-stone-800 pt-8 mt-12">
