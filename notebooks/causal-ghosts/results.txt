@@ -1,0 +1,29 @@
+Cell 1 complete: Parameters configured with seed=42.
+
+--- RUNG 1 vs RUNG 2 RECAP ---
+Naive Observational Coefficient P(Y | X) : -1.6031
+True Causally Adjusted Effect P(Y | do(X)): 2.0008 (True: 2.0000)
+
+--- TWIN-NETWORK INDIVIDUAL RETROSPECTIVE ---
+Factual Observation of Subject 0: X=1.7544, T=1.3818, Y=5.0254
+Abducted Noise Variable U_Y       : -0.3676 (True U_Y: -0.3698)
+Counterfactual Action            : Force T from 1.3818 to -0.3818
+Predicted Counterfactual Outcome : 1.4884
+True Counterfactual Outcome      : 1.4982
+Absolute Prediction Error        : 0.009791
+
+--- EMPIRICAL SURPRISE 1: HETEROGENEITY ---
+Rung 1 Observational Difference P(Y|T=1)-P(Y|T=0)  : 1.9614
+Rung 2 Population Causal Effect (True ATE)        : 0.0112
+Rung 3 Individual Treatment Effect (ITE) Deviation: 1.9928
+True ITE Minimum Value                            : -6.4825
+True ITE Maximum Value                            : 7.8525
+Percentage of Population Actively Harmed by Policy : 49.48%
+Percentage of Population Actively Saved by Policy  : 50.52%
+
+--- EMPIRICAL SURPRISE 2: NON-IDENTIFIABILITY ---
+Without assumptions, ATE in [-0.2187, 0.7813] — width = 1.0000
+With monotonicity, ATE in [0.0000, 0.7813] — width = 0.7813
+The monotonicity assumption reduced uncertainty by 21.87%
+
+All simulations run successfully. The causal ghosts have been saved to causal_ghosts_plot.png.
