@@ -1,0 +1,174 @@
+<div class="sandbox-container my-12 p-6 border border-ink-faint bg-surface rounded-lg select-none transition-colors duration-300">
+  <div class="sandbox-meta flex justify-between items-center mb-4 border-b border-ink-faint pb-3 flex-wrap gap-2">
+    <span class="sandbox-title font-garamond text-[0.75rem] tracking-[0.15em] uppercase text-accent font-medium">Logit Softmax & Temperature Simulator</span>
+    <span class="sandbox-instructions text-[0.7rem] text-ink-dim italic">Adjust the slider to alter the softmax temperature</span>
+  </div>
+  
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-4">
+    <!-- Left panel: Temperature Controls -->
+    <div class="flex flex-col justify-center bg-[#09090a] p-4 rounded border border-white/5">
+      <div class="mb-4">
+        <label for="temp-slider" class="block text-[0.75rem] font-mono uppercase tracking-wider text-ink-dim mb-2">
+          Temperature (T) = <span id="temp-val" class="text-accent font-bold text-sm">1.00</span>
+        </label>
+        <input 
+          type="range" 
+          id="temp-slider" 
+          min="0.1" 
+          max="2.0" 
+          step="0.05" 
+          value="1.0" 
+          class="w-full h-1 bg-white/10 rounded-lg appearance-none cursor-pointer accent-accent"
+        />
+      </div>
+      
+      <div class="border-t border-white/5 pt-3 mt-2 font-mono text-[0.7rem] text-ink-dim leading-relaxed">
+        <div class="flex justify-between mb-1">
+          <span>Target Prompt:</span>
+          <span class="text-ink-strong">“The author of... Grief is”</span>
+        </div>
+        <div class="flex justify-between mb-1">
+          <span>Cliché Target:</span>
+          <span class="text-amber-500 font-bold">" now (Cliché)"</span>
+        </div>
+        <div class="flex justify-between mb-1">
+          <span>Factual Target:</span>
+          <span class="text-emerald-500 font-bold">" no (Factual)"</span>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Right panel: Probability Bar Chart -->
+    <div class="flex flex-col bg-[#09090a] p-4 rounded border border-white/5 justify-between">
+      <h4 class="text-[0.7rem] font-mono uppercase tracking-wider text-ink-dim mb-3 border-b border-dashed border-white/5 pb-1">
+        Next-Token Softmax Probabilities
+      </h4>
+      <div class="flex flex-col gap-2.5" id="bars-container">
+        <!-- Bars will be rendered dynamically by JS -->
+      </div>
+    </div>
+  </div>
+  
+  <!-- Console readouts and explanation -->
+  <div class="sandbox-console bg-[#09090a] border-t border-white/5 p-4 font-mono text-[0.72rem] text-code-txt rounded-b -mt-1">
+    <div class="console-line flex justify-between mb-1 flex-wrap gap-2">
+      <span>Distribution Entropy (H): <span id="val-entropy-temp" class="text-ink-strong">1.25</span></span>
+      <span>Fluency Dominance: <span id="val-fluency-bias" class="text-ink-strong">High</span></span>
+    </div>
+    <div class="console-reconstruction text-accent-glowing text-[0.78rem] mt-2 pt-2 border-t border-dashed border-white/5 min-h-[3rem] leading-relaxed" id="console-output-temp">
+      Loading...
+    </div>
+  </div>
+</div>
+
+<script>
+  interface TokenCandidate {
+    token: string;
+    logit: number;
+    isFactual: boolean;
+    color: string;
+  }
+
+  const candidates: TokenCandidate[] = [
+    { token: " now (Cliché)", logit: 12.5, isFactual: false, color: "#df9e6c" },
+    { token: " Dr. (Alternative)", logit: 11.8, isFactual: false, color: "#c58e7d" },
+    { token: " a (Grammar)", logit: 11.0, isFactual: false, color: "#7c8fa6" },
+    { token: " no (Factual)", logit: 10.2, isFactual: true, color: "#8fb09e" },
+    { token: " unknown (Honest)", logit: 8.5, isFactual: true, color: "#5c6670" }
+  ];
+
+  function initTemperatureSandbox() {
+    const tempSlider = document.getElementById('temp-slider') as HTMLInputElement | null;
+    const tempVal = document.getElementById('temp-val');
+    const barsContainer = document.getElementById('bars-container');
+    const valEntropy = document.getElementById('val-entropy-temp');
+    const valFluency = document.getElementById('val-fluency-bias');
+    const consoleOutput = document.getElementById('console-output-temp');
+
+    if (!tempSlider || !tempVal || !barsContainer || !valEntropy || !valFluency || !consoleOutput) return;
+
+    function update() {
+      const T = parseFloat(tempSlider!.value);
+      tempVal!.textContent = T.toFixed(2);
+
+      // Compute softmax
+      let expSum = 0;
+      const exps = candidates.map(c => {
+        const val = Math.exp(c.logit / T);
+        expSum += val;
+        return val;
+      });
+
+      const probs = exps.map(v => v / expSum);
+
+      // Compute entropy H = -sum(p * log2(p))
+      let H = 0;
+      probs.forEach(p => {
+        if (p > 0) {
+          H += -p * Math.log2(p);
+        }
+      });
+
+      valEntropy!.textContent = H.toFixed(3);
+
+      // Fluency dominance determination
+      const pCliché = probs[0]; // " now"
+      const pFactual = probs[3]; // " no"
+      
+      let dominance = "Moderate";
+      if (pCliché > 0.7) {
+        dominance = "Extreme (Cliché Attractor)";
+      } else if (pCliché > 0.4) {
+        dominance = "High (Coherence Bias)";
+      } else if (pCliché < 0.25) {
+        dominance = "Low (High Entropy)";
+      }
+      valFluency!.textContent = dominance;
+
+      // Render bars
+      barsContainer!.innerHTML = '';
+      candidates.forEach((c, idx) => {
+        const p = probs[idx];
+        const pct = (p * 100).toFixed(1);
+        
+        const row = document.createElement('div');
+        row.className = "flex flex-col font-mono text-[0.68rem] gap-1";
+        
+        row.innerHTML = `
+          <div class="flex justify-between text-ink-strong">
+            <span class="${c.isFactual ? 'text-emerald-500/90' : 'text-amber-500/90'} font-semibold">${c.token}</span>
+            <span>${pct}%</span>
+          </div>
+          <div class="w-full h-2 bg-white/5 rounded-full overflow-hidden">
+            <div class="h-full rounded-full transition-all duration-150" style="width: ${pct}%; background-color: ${c.color};"></div>
+          </div>
+        `;
+        barsContainer!.appendChild(row);
+      });
+
+      // Update explanation text
+      let explanation = "";
+      if (T < 0.4) {
+        explanation = "CLICHÉ ATTRACTOR EXTREME. The model converges with absolute confidence on the most likely token (' now'). The factual negation (' no') is completely suppressed to near-zero. The objective function maximizes fluency at the cost of all optionality.";
+      } else if (T >= 0.4 && T < 0.8) {
+        explanation = "TYPICAL COHERENCE. Fluent generation paths dominate. The probability mass is concentrated on the academic clichés. Diversity is low, and truth has minimal representation in the distribution.";
+      } else if (T >= 0.8 && T <= 1.2) {
+        explanation = "STANDARD DECODING (T ≈ 1.0). Coherence attracts most of the probability mass, but alternative grammatical paths are open. The factual correction (' no') has a non-zero but minor probability, while the cliché remains the primary candidate.";
+      } else if (T > 1.2 && T <= 1.6) {
+        explanation = "ENTROPY RISE. The probability mass is dispersed. Factual and cliché tokens begin to equalize, but the coherence of the generated sequence starts to degrade as grammatical errors arise.";
+      } else {
+        explanation = "ENTROPY COLLAPSE. The distribution flattens toward uniform randomness. The system generates incoherent text. It is no longer a bullshitter; it has dissolved into noise.";
+      }
+      consoleOutput!.textContent = explanation;
+    }
+
+    tempSlider.addEventListener('input', update);
+    update();
+  }
+
+  // Initialize
+  initTemperatureSandbox();
+  document.addEventListener('astro:page-load', () => {
+    initTemperatureSandbox();
+  });
+</script>
