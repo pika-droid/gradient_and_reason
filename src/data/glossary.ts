@@ -139,5 +139,30 @@ export const glossary: Record<string, GlossaryEntry> = {
     term: "Concept Drift",
     def: "The decay of predictive accuracy when target statistical properties change over time, altering context.",
     url: "https://en.wikipedia.org/wiki/Concept_drift"
+  },
+  "hallucination": {
+    term: "LLM Hallucination",
+    def: "When a language model generates confident, fluent text that is factually incorrect or entirely fabricated.",
+    url: "https://en.wikipedia.org/wiki/Hallucination_(artificial_intelligence)"
+  },
+  "on-bullshit": {
+    term: "Frankfurt's Bullshit",
+    def: "Harry Frankfurt's term for speech made with indifference to truth — optimizing for effect rather than accuracy.",
+    url: "https://en.wikipedia.org/wiki/On_Bullshit"
+  },
+  "cross-entropy-loss": {
+    term: "Cross-Entropy Loss",
+    def: "A loss function measuring the difference between predicted token distributions and actual training data target values.",
+    url: "https://en.wikipedia.org/wiki/Cross-entropy"
+  },
+  "fluency-objective": {
+    term: "Fluency Objective",
+    def: "The goal of next-token prediction: maximize sequence likelihood, rewarding plausible text over verified truth.",
+    url: "https://arxiv.org/abs/2305.18248"
+  },
+  "autoregressive": {
+    term: "Autoregressive Model",
+    def: "A neural network that generates sequence elements step-by-step, conditioning each step on all previous outputs.",
+    url: "https://en.wikipedia.org/wiki/Autoregressive_model"
   }
 };

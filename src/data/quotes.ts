@@ -75,5 +75,13 @@ export const quotes: Quote[] = [
   {
     quote: "What information consumes is rather obvious: it consumes the attention of its recipients.",
     author: "Herbert Simon"
+  },
+  {
+    quote: "No permanence, no perseverance in existence, can even be conceived of without men willing to testify to what is.",
+    author: "Hannah Arendt"
+  },
+  {
+    quote: "It is impossible for someone to lie unless he thinks he knows the truth. Producing bullshit requires no such conviction.",
+    author: "Harry Frankfurt"
   }
 ];
