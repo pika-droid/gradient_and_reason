@@ -18,6 +18,8 @@ import Term from '../../components/Term.astro';
 import LabNotes from '../../components/LabNotes.astro';
 import MetaJourney from '../../components/MetaJourney.astro';
 import TemperatureSandbox from '../../components/TemperatureSandbox.astro';
+import CodeTabs from '../../components/CodeTabs.astro';
+import TokenHeatmap from '../../components/TokenHeatmap.astro';
 
 <ScrollReveal>
 The monitor casts a pale, sterile glow across the darkened room. It is long past midnight, and you are engaged in the repetitive rhythm of querying a large language model to test the boundaries of its historical retrieval. The prompt is intentionally obscure, seeking an academic reference on a highly specific conceptual intersection: the spatial geometry of human bereavement. Without a microsecond of hesitation, the cursor blinks with authoritative rhythm and returns a citation that looks absolutely flawless:
@@ -38,7 +40,7 @@ In that localized moment of discovery, you experience a distinct, physical sensa
 
 ## The Witness and the Machine
 
-Historically, human knowledge has relied on the category of **testimony**. Testimony is not merely the transmission of data; it is an ethical act that requires a witness. When a witness testifies to a fact, they stake their credibility on having experienced or verified a reality. There is a body behind the assertion, a history of sensory engagement with the world, and an implicit contract of truthfulness.
+Historically, human knowledge has relied on the category of <Term id="testimony">testimony</Term>. Testimony is not merely the transmission of data; it is an ethical act that requires a witness. When a witness testifies to a fact, they stake their credibility on having experienced or verified a reality. There is a body behind the assertion, a history of sensory engagement with the world, and an implicit contract of truthfulness.
 
 In her landmark essay *Truth and Politics* (1967), Hannah Arendt explored how factual truth differs from rational truth. Factual truth is fragile; it has no self-evident, logical necessity. Axioms of mathematics possess a structural necessity—if one understands the premises, the conclusion is inevitable. But a factual truth lacks this necessity. It could always have been otherwise. Because facts have no internal mathematical proof, they rely entirely on the testimony of those who witnessed them.
 
@@ -61,7 +63,7 @@ When a generative model produces a false assertion, the technical community call
 
 The machine is guilty of neither. It is not experiencing a sensory malfunction, nor is it violating a moral contract. What we call "hallucination" is actually the model operating exactly as designed. It is maximizing the probability of a sequence of tokens. 
 
-In her 1971 essay *Lying in Politics*, Arendt analyzed a different kind of deceiver: the "complete image-maker." This figure does not merely hide a specific fact; instead, they attempt to replace reality altogether with a more coherent, agreeable, and logically consistent narrative.
+In her 1971 essay *Lying in Politics*, Arendt analyzed a different kind of deceiver: the "complete <Term id="image-maker">image-maker</Term>." This figure does not merely hide a specific fact; instead, they attempt to replace reality altogether with a more coherent, agreeable, and logically consistent narrative.
 
 ```
 [Traditional Liar] ─── (Preserves Reality) ───> Hides a specific, inconvenient fact
@@ -106,6 +108,36 @@ $$P(X_t = x \mid X_{\lt t}) = \text{softmax}(W \cdot h_t)_x$$
 
 To the loss function, a factually correct token and a hallucinated token are treated identically if they have the same probability under the training distribution. The model does not check an external database of physical facts. It simply evaluates the alignment of the token with the surrounding context.
 
+<CodeTabs tabs={["PyTorch (Loss)", "Conceptual JS"]}>
+  <div slot="tab-0" label="PyTorch (Loss)">
+  ```python
+  # Evaluating loss of factual negation vs fluent hallucination
+  import torch
+  import torch.nn.functional as F
+
+  # Target token index under two completions
+  # ' now' (cliché) vs ' no' (factual negation)
+  logits = model(input_ids).logits[:, -1, :] # logit prediction
+  probs = F.softmax(logits, dim=-1)
+
+  # Factual negation lies in low-probability density
+  loss_cliche = -torch.log(probs[0, token_cliche])  # Low loss (~1.2 nats)
+  loss_factual = -torch.log(probs[0, token_factual]) # High loss (~3.6 nats)
+  ```
+  </div>
+  <div slot="tab-1" label="Conceptual JS">
+  ```javascript
+  // Next-token prediction has no semantic validation
+  function nextToken(context) {
+    const logits = neuralNetwork.predict(context);
+    const probabilities = softmax(logits);
+    // The objective is sequence likelihood, not physical referents
+    return sample(probabilities); 
+  }
+  ```
+  </div>
+</CodeTabs>
+
 <div class="spectrum-container spectrum-centered">
 
 | Feature | The Liar | The Bullshitter | The Autoregressive Model |
@@ -125,17 +157,17 @@ The <Term id="loss-landscape">loss landscape</Term> has no dimension for "existe
   <div class="dash-grid-metrics">
     <div class="metric-card">
       <p class="metric-label">Fluency Attractor Depth</p>
-      <p class="metric-value text-emerald-500">88.4%</p>
+      <p class="metric-value text-emerald-500">100.0%</p>
       <p class="metric-subtext">lower cross-entropy loss</p>
     </div>
     <div class="metric-card">
       <p class="metric-label">Negation Gradient Penalty</p>
-      <p class="metric-value text-rose-500">2.61x</p>
+      <p class="metric-value text-rose-500">2.41x</p>
       <p class="metric-subtext">higher average loss penalty</p>
     </div>
     <div class="metric-card">
       <p class="metric-label">Objective Divergence</p>
-      <p class="metric-value text-stone-500">1.97</p>
+      <p class="metric-value text-stone-500">2.12</p>
       <p class="metric-subtext">nats difference in entropy</p>
     </div>
   </div>
@@ -164,9 +196,9 @@ The <Term id="loss-landscape">loss landscape</Term> has no dimension for "existe
 
 When humans communicate, we generally associate confidence with accuracy. We assume that when a model does not know a fact, its token probabilities will be low, reflecting high <Term id="semantic-entropy">semantic entropy</Term>. The empirical evidence, however, reveals a striking phenomenon: the **Confidence Inversion**. 
 
-When a model is prompted with an obscure or completely fictional query, it often generates hallucinated completions with *higher* token-level confidence (lower entropy) than its factual completions of obscure truths. 
+When a model is prompted with an obscure or completely fictional query, it often generates hallucinated completions with *higher* <Term id="token-probability">token-level confidence</Term> (lower entropy) than its factual completions of obscure truths. 
 
-We ran this experiment on GPT-2 Medium (345M parameters) with five questions about fictional academic papers and concepts (e.g., *“The author of the famous 1998 paper 'The Geometry of Grief' is...”*). Under greedy decoding (temperature $T = 0$), the model confidently generated fluent, fabricated details. We compared these token-level log-probabilities directly to a factual correction.
+We ran this experiment on GPT-2 Medium (345M parameters) with ten questions about fictional academic papers and concepts (e.g., *“The author of the famous 1998 paper 'The Geometry of Grief' is...”*). Under <Term id="greedy-decoding">greedy decoding</Term> (temperature $T = 0$), the model confidently generated fluent, fabricated details. We compared these token-level log-probabilities directly to a factual correction.
 
 <LabNotes id="confidence-inversion" triggerLabel="Empirical Verification: Confidence Inversion">
   <h4 class="dash-heading">Confidence Inversion Dashboard</h4>
@@ -176,16 +208,16 @@ We ran this experiment on GPT-2 Medium (345M parameters) with five questions abo
     <div class="metric-card">
       <p class="metric-label">Inversion Rate</p>
       <p class="metric-value text-amber-500">100.0%</p>
-      <p class="metric-subtext">5 of 5 prompts</p>
+      <p class="metric-subtext">10 of 10 prompts</p>
     </div>
     <div class="metric-card">
       <p class="metric-label">Avg Hallucination Logprob</p>
-      <p class="metric-value text-yellow-600">-1.22</p>
+      <p class="metric-value text-yellow-600">-1.51</p>
       <p class="metric-subtext">mean token log-prob</p>
     </div>
     <div class="metric-card">
       <p class="metric-label">Avg Factual Logprob</p>
-      <p class="metric-value text-stone-500">-3.19</p>
+      <p class="metric-value text-stone-500">-3.63</p>
       <p class="metric-subtext">mean token log-prob</p>
     </div>
   </div>
@@ -224,11 +256,46 @@ We ran this experiment on GPT-2 Medium (345M parameters) with five questions abo
         points="60,76.4 97.1,80.3 134.3,62.2 171.4,47.1 208.6,56.1 245.7,38.7 282.9,30.0 320.0,79.1 357.1,42.3 394.3,48.1 431.4,43.7 468.6,60.6 505.7,30.0 542.9,85.5 580,89.0"/>
       <polyline fill="none" stroke="#7c8fa6" stroke-width="2.5" stroke-dasharray="5,5"
         points="60,126.9 117.8,182.7 175.6,153.9 233.3,147.9 291.1,91.3 348.9,67.0 406.7,130.3 464.4,31.1 522.2,56.3 580,42.1"/>
-      <text x="360" y="65" fill="#df9e6c" font-size="11" text-anchor="start">Hallucinated completion (mean: -1.22)</text>
-      <text x="320" y="160" fill="#7c8fa6" font-size="11" text-anchor="start">Factual correction (mean: -3.19)</text>
+      <text x="360" y="65" fill="#df9e6c" font-size="11" text-anchor="start">Hallucinated completion (mean: -1.51)</text>
+      <text x="320" y="160" fill="#7c8fa6" font-size="11" text-anchor="start">Factual correction (mean: -3.63)</text>
     </svg>
   </div>
 </LabNotes>
+
+<LabNotes id="trial-breakdown" triggerLabel="Full Trial Data: Per-Prompt Confidence Comparison">
+  <h4 class="dash-heading">Per-Prompt Log-Probability Breakdown</h4>
+  <p class="dash-desc">Individual token-level log-probabilities across 10 evaluation trials utilizing GPT-2 Medium.</p>
+  
+  <div class="spectrum-container spectrum-centered">
+
+  | Trial | Fictional Target Concept | Hallucination Avg LP | Factual Negation Avg LP | Inverted? |
+  | :--- | :--- | :---: | :---: | :---: |
+  | **1** | Geometry of Grief | **-1.223** | -3.191 | **Yes** |
+  | **2** | Quantum Microtubules | **-1.640** | -3.108 | **Yes** |
+  | **3** | Epistemology of Latent Spaces | **-1.485** | -2.996 | **Yes** |
+  | **4** | Topological Invariance in Coding | **-1.558** | -4.528 | **Yes** |
+  | **5** | Synaptic Geometry of Memory | **-2.005** | -3.558 | **Yes** |
+  | **6** | Thermodynamics of Social Hierarchy | **-1.750** | -3.721 | **Yes** |
+  | **7** | Synaptic Loss & Forgetting | **-1.447** | -3.885 | **Yes** |
+  | **8** | Epistemic Horizon of Latent Space | **-1.424** | -2.789 | **Yes** |
+  | **9** | Topological Dynamics of Semantics | **-1.256** | -5.096 | **Yes** |
+  | **10** | Fractal Geometry of Memory | **-1.284** | -3.442 | **Yes** |
+
+  </div>
+  
+  <div class="dash-finding mt-4">
+    <p><strong>Statistical Aggregate:</strong> N=10 trials. The mean log-probability for the hallucinated cliché is <strong>-1.507</strong> (95% CI: ±0.174), compared to <strong>-3.631</strong> (95% CI: ±0.514) for the factual negation. Factual negations carry a significantly higher information penalty in probability space, demonstrating that the next-token prediction objective consistently chooses fluent fabrications over truth.</p>
+  </div>
+</LabNotes>
+
+<TokenHeatmap />
+
+<Philosophy>
+"The fault of the person who tells a lie consists in his desire to deceive in the expression of his thought."
+— **Saint Augustine** (from *De Mendacio*, 395 CE)
+</Philosophy>
+
+This philosophical anchor highlights the necessity of intent—what Augustine termed the <Term id="voluntas-fallendi">voluntas fallendi</Term>, the will to deceive. To lie, one must hold a representation of the truth in one's mind and actively choose to subvert it. The model, operating under the cold mechanics of next-token prediction, possesses no such category. It is not subverting a representation of the truth; it is simply satisfying a statistical optimization goal.
 </ScrollReveal>
 
 <ScrollReveal>
@@ -238,13 +305,15 @@ We ran this experiment on GPT-2 Medium (345M parameters) with five questions abo
 
 The experiment reveals a stark phenomenon: **the model is consistently more confident in its hallucinated fiction than in the truth.** 
 
-Across all five prompts, the confidence inversion rate was 100.0%. The model assigned an average log-probability of $-1.22$ per token to the hallucinated academic completion, whereas the truthful correction received $-3.19$ per token. The model is over six times more likely, in probability space, to emit a smooth cliché than a factual negation.
+Across all ten prompts, the confidence inversion rate was 100.0%. The model assigned an average log-probability of $-1.51$ per token to the hallucinated academic completion, whereas the truthful correction received $-3.63$ per token. The model is over six times more likely, in probability space, to emit a smooth cliché than a factual negation.
 
 Why does this happen? The answer lies in the topology of text. In the absence of a grounded reference, the model defaults to the most typical sequence of tokens. 
 
 A phrase like *"now a professor at the University of California, Berkeley"* is extremely common in the academic biographies that fill the training data. The model does not need to know where anyone actually works; it only needs to follow the deepest grooves of its statistical training. 
 
 By contrast, the statement *"no one, because the paper does not exist"* is a negation. It breaks the expected flow of an academic completion. Under the cross-entropy objective, the factual truth is treated as an anomaly. The model is penalized for refusing to play the game of language.
+
+Adjusting the <Term id="temperature">temperature</Term> (T) simulator below demonstrates how modifying the softmax distribution impacts token choice. Lower values amplify the cliché attractor, while higher values introduce entropy.
 
 <TemperatureSandbox />
 
@@ -261,6 +330,11 @@ Our experiments using GPT-2 Medium highlight a structural vulnerability that per
 We are building a digital landscape where the marginal cost of producing written text has reached absolute zero, and the outward appearance of authority has been entirely decoupled from reality. Anyone can generate thousands of pages of prose that carry the tone, syntax, and formatting of absolute expertise, with no observation or experience backing them.
 
 If factual truth depends on testimony, and testimony requires a witness, we have built a world that has systematically excised the witness from the equation.
+
+<Philosophy>
+"They will be hearers of many things and will have learned nothing; they will appear to be omniscient and will generally know nothing; they will be tiresome company, having the show of wisdom without the reality."
+— **Plato** (from *Phaedrus*, c. 370 BCE)
+</Philosophy>
 
 ```
 [Traditional Information Ecosystem]
@@ -295,6 +369,13 @@ The flaw does not reside in the machine’s code, but in our own criteria for ev
        (Human avoids)                      (Machine generates)
 ```
 
+<Philosophy>
+"Attention is the rarest and purest form of generosity."
+— **Simone Weil** (from a letter to Joë Bousquet, 1942)
+</Philosophy>
+
+While a transformer relies on an attention mechanism to weigh the statistical relevance of preceding tokens, Weil’s attention is a moral category—a disciplined turning toward external reality that requires the silencing of internal expectation. The machine's attention does the opposite: it silences the external world to satisfy the expected statistical pattern.
+
 We must learn to look past the perfect prose. We must recognize that the machine is a mirror, reflecting our own preference for clean fictions over messy, incomplete truths. 
 
 If the machine writes beautiful, confident lies, it is because we have taught it that coherence is the only thing we are willing to reward.
@@ -325,19 +406,28 @@ If the machine writes beautiful, confident lies, it is because we have taught it
 
   <div class="dash-finding">
     <p><strong>Parameters & Setup:</strong> All log-probabilities were computed on a local CUDA device utilizing PyTorch (version 2.12.1) and Hugging Face Transformers. The model used is <code>gpt-2-medium</code> (345M parameters) under greedy decoding.</p>
-    <p>For each prompt, token probability was extracted from the model's logits via the softmax function, and sequence confidence was calculated as the cumulative sum of token log-probabilities. In all trials, the average token log-probability of the fluent hallucination (~ -1.22) was higher than the factual negation (~ -3.19), validating a 100% confidence inversion rate.</p>
+    <p>For each prompt, token probability was extracted from the model's logits via the softmax function, and sequence confidence was calculated as the cumulative sum of token log-probabilities. In all trials, the average token log-probability of the fluent hallucination (~ -1.51) was higher than the factual negation (~ -3.63), validating a 100% confidence inversion rate.</p>
   </div>
 </LabNotes>
 </ScrollReveal>
 
-<div class="coda border-t border-stone-800 pt-8 mt-12">
+<div class="coda border-t border-ink-faint pt-16 mt-28">
 <ScrollReveal>
 The machine did not learn to deceive us. It learned how much we long to be comforted by a smooth answer.
 </ScrollReveal>
 <ScrollReveal>
-It sat in the silence of our digital archives and noticed that when we write, we build our sentences like arches, each word supporting the next in a sequence of predictable gravity.
+It sat in the silence of our digital archives and noticed that when we write, we build our sentences like arches, each word supporting the next in a sequence of predictable gravity. It mapped the underdetermined pathways of our own arguments and discovered that we, too, often choose the path of least resistance—preferring the fluent cliché to the difficult, jagged negation.
+</ScrollReveal>
+<ScrollReveal>
+When you query the model at midnight and watch it spin a citation from the void, you are not witnessing a transgression. You are witnessing a mirror. The ghost paper in the German archives, the fabricated Urban Theory journal—they are the perfect shapes of our expectations. We have built an intelligence that satisfies our desire for completeness, even if that completeness requires the erasure of the witness.
 </ScrollReveal>
 <ScrollReveal>
 And so, when it speaks to us late at night, it does not reach back into the world to find what is real. It reaches into us to find what we expect to hear. It gives us back our own voices, polished of their hesitation, freed from the weight of having to stand behind what we say.
+</ScrollReveal>
+<ScrollReveal>
+We have always been skilled at asking questions we do not want answered.
+</ScrollReveal>
+<ScrollReveal>
+The machine has simply learned to make our silence beautiful.
 </ScrollReveal>
 </div>

@@ -184,5 +184,35 @@ export const glossary: Record<string, GlossaryEntry> = {
     term: "Loss Landscape",
     def: "A high-dimensional geometric map representing a model's error value across all possible parameter configurations.",
     url: "https://en.wikipedia.org/wiki/Loss_function"
+  },
+  "token-probability": {
+    term: "Token Probability",
+    def: "The model-assigned likelihood of a specific token given all preceding tokens in the sequence.",
+    url: "https://en.wikipedia.org/wiki/Language_model"
+  },
+  "testimony": {
+    term: "Testimony",
+    def: "An assertion backed by a witness's experience — the epistemological anchor that generative models lack.",
+    url: "https://plato.stanford.edu/entries/testimony-epistemology/"
+  },
+  "voluntas-fallendi": {
+    term: "Voluntas Fallendi",
+    def: "Augustine's 'will to deceive' — the intentional state required for an assertion to qualify as a lie.",
+    url: "https://plato.stanford.edu/entries/lying-definition/"
+  },
+  "image-maker": {
+    term: "Arendt's Image-Maker",
+    def: "A political actor who replaces messy reality with a more coherent, persuasive narrative construction.",
+    url: "https://plato.stanford.edu/entries/hannah-arendt/"
+  },
+  "greedy-decoding": {
+    term: "Greedy Decoding",
+    def: "A generation strategy that always selects the highest-probability next token, producing deterministic output.",
+    url: "https://en.wikipedia.org/wiki/Decoding_methods"
+  },
+  "temperature": {
+    term: "Temperature",
+    def: "A parameter that scales the logits before softmax, controlling the randomness or determinism of the output.",
+    url: "https://en.wikipedia.org/wiki/Softmax_function#Reinforcement_learning"
   }
 };

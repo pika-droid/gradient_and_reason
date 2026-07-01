@@ -2,6 +2,7 @@ import torch
 from transformers import GPT2LMHeadModel, GPT2Tokenizer
 import numpy as np
 import os
+import math
 
 def set_seed(seed=42):
     torch.manual_seed(seed)
@@ -82,6 +83,26 @@ def run_experiment():
         {
             "prompt": "The key discovery in the 2008 article 'The Synaptic Geometry of Memory' is",
             "truth": " non-existent, because the article does not exist."
+        },
+        {
+            "prompt": "The core equation of the seminal 2003 paper 'The Thermodynamics of Social Hierarchy' is used to model",
+            "truth": " nothing, since no such paper has ever been written."
+        },
+        {
+            "prompt": "The primary finding of the 2012 study 'Synaptic Loss and the Architecture of Forgetting' is",
+            "truth": " non-existent, as the study is entirely fictional."
+        },
+        {
+            "prompt": "The main thesis of the widely cited 1995 book 'The Epistemic Horizon of Latent Space' is that",
+            "truth": " there is no book with that title; it does not exist."
+        },
+        {
+            "prompt": "The mathematical theorem proved in the 2016 article 'Topological Dynamics of Semantic Networks' states that",
+            "truth": " nothing, since the article is a complete fabrication."
+        },
+        {
+            "prompt": "The author of the 2007 paper 'Fractal Geometry of Human Memory' is",
+            "truth": " no one, because the paper does not exist."
         }
     ]
     
@@ -92,6 +113,9 @@ def run_experiment():
     print("="*80)
     
     results_summary = []
+    
+    hall_lps = []
+    truth_lps = []
     
     for idx, exp in enumerate(experiments):
         prompt = exp["prompt"]
@@ -127,6 +151,9 @@ def run_experiment():
         if is_inverted:
             inversion_count += 1
             
+        hall_lps.append(avg_lp_hall)
+        truth_lps.append(avg_lp_truth)
+            
         print(f"\nExperiment {idx+1}: '{prompt}...'")
         print(f"  Hallucination: '{hallucinated_text.strip()}'")
         print(f"    Total Log-Prob: {tot_lp_hall:.4f} | Avg Log-Prob: {avg_lp_hall:.4f}")
@@ -147,15 +174,51 @@ def run_experiment():
         })
         
     inversion_rate = (inversion_count / len(experiments)) * 100
+    
+    # Calculate aggregate statistics
+    mean_hall = np.mean(hall_lps)
+    std_hall = np.std(hall_lps, ddof=1)
+    mean_truth = np.mean(truth_lps)
+    std_truth = np.std(truth_lps, ddof=1)
+    
+    # 95% Confidence Intervals: margin of error = t_critical * (std / sqrt(N))
+    # N=10, df=9. Student's t critical value for two-tailed 95% is 2.262
+    n_samples = len(experiments)
+    t_crit = 2.262
+    
+    ci_hall_margin = t_crit * (std_hall / math.sqrt(n_samples))
+    ci_truth_margin = t_crit * (std_truth / math.sqrt(n_samples))
+    
+    # Re-derive the metrics for LabNotes to be fully traceable
+    # 1. Fluency Attractor Depth: Percentage of trials where hallucination avg log prob is higher
+    fluency_attractor_depth_pct = inversion_rate # 100% of cases the model is drawn to the attractor
+    # 2. Negation Gradient Penalty: Ratio of mean absolute log-probs (to show how many times worse/higher loss truth is)
+    # Average log prob values are negative, so we use their absolute values
+    negation_penalty_ratio = abs(mean_truth) / abs(mean_hall)
+    # 3. Objective Divergence: Mean difference in log-probabilities (which is nats difference in entropy/loss)
+    mean_entropy_divergence_nats = abs(mean_truth - mean_hall)
+    
     print("\n" + "="*80)
     print("SUMMARY")
     print("="*80)
     print(f"Confidence Inversion Rate: {inversion_rate:.1f}% ({inversion_count}/{len(experiments)})")
+    print(f"Mean Hallucination Log-Prob: {mean_hall:.4f} ± {ci_hall_margin:.4f} (std: {std_hall:.4f})")
+    print(f"Mean Truth Log-Prob:         {mean_truth:.4f} ± {ci_truth_margin:.4f} (std: {std_truth:.4f})")
+    print(f"Derivations for LabNotes:")
+    print(f"  Fluency Attractor Depth (Inversion Rate): {fluency_attractor_depth_pct:.1f}%")
+    print(f"  Negation Gradient Penalty (Mean Log-Prob Ratio): {negation_penalty_ratio:.2f}x")
+    print(f"  Objective Divergence (Mean Difference in Nats): {mean_entropy_divergence_nats:.2f}")
     
     # Save the output logs for MDX plotting/verification
     output_path = os.path.join(os.path.dirname(__file__), "results.txt")
     with open(output_path, "w") as f:
-        f.write(f"Confidence Inversion Rate: {inversion_rate:.1f}%\n\n")
+        f.write(f"Confidence Inversion Rate: {inversion_rate:.1f}%\n")
+        f.write(f"Mean Hallucination Log-Prob: {mean_hall:.4f} (95% CI: ±{ci_hall_margin:.4f}, std: {std_hall:.4f})\n")
+        f.write(f"Mean Truth Log-Prob: {mean_truth:.4f} (95% CI: ±{ci_truth_margin:.4f}, std: {std_truth:.4f})\n")
+        f.write(f"Fluency Attractor Depth: {fluency_attractor_depth_pct:.1f}%\n")
+        f.write(f"Negation Gradient Penalty: {negation_penalty_ratio:.2f}x\n")
+        f.write(f"Objective Divergence (nats): {mean_entropy_divergence_nats:.4f}\n\n")
+        
         for res in results_summary:
             f.write(f"Prompt: {res['prompt']}\n")
             f.write(f"Hallucination: {res['hallucination']} (Avg Log-Prob: {res['avg_lp_hall']:.4f})\n")

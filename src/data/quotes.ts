@@ -83,5 +83,17 @@ export const quotes: Quote[] = [
   {
     quote: "It is impossible for someone to lie unless he thinks he knows the truth. Producing bullshit requires no such conviction.",
     author: "Harry Frankfurt"
+  },
+  {
+    quote: "The fault of the person who tells a lie consists in his desire to deceive in the expression of his thought.",
+    author: "Saint Augustine"
+  },
+  {
+    quote: "They will appear to be omniscient and will generally know nothing... having the show of wisdom without the reality.",
+    author: "Plato"
+  },
+  {
+    quote: "Attention is the rarest and purest form of generosity.",
+    author: "Simone Weil"
   }
 ];
