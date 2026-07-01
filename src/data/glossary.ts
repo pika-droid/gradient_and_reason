@@ -17,8 +17,43 @@ export const glossary: Record<string, GlossaryEntry> = {
   },
   "do-operator": {
     term: "do-Operator",
-    def: "A mathematical operator representing an intervention that forces a variable to take a specific value.",
+    def: "Pearl's notation for surgical intervention: setting a variable to a value, cutting its causal parents.",
     url: "https://en.wikipedia.org/wiki/Causal_inference#Interventions"
+  },
+  "counterfactual": {
+    term: "Counterfactual",
+    def: "A statement about what would have occurred under conditions different from those that actually obtained.",
+    url: "https://en.wikipedia.org/wiki/Counterfactual_conditional"
+  },
+  "structural-causal-model": {
+    term: "Structural Causal Model",
+    def: "A model of variables and functional relationships specifying how interventions propagate through a system.",
+    url: "https://en.wikipedia.org/wiki/Causal_model"
+  },
+  "individual-treatment-effect": {
+    term: "Individual Treatment Effect",
+    def: "The causal effect of a treatment on a specific individual, as opposed to a population average.",
+    url: "https://en.wikipedia.org/wiki/Causal_inference"
+  },
+  "manski-bounds": {
+    term: "Manski Bounds",
+    def: "Sharp non-parametric bounds on causal effects identifiable from observational data alone.",
+    url: "https://en.wikipedia.org/wiki/Manski_bounds"
+  },
+  "twin-network": {
+    term: "Twin-Network",
+    def: "A pair of parallel SCMs sharing abducted noise variables to compute individual counterfactual outcomes.",
+    url: "https://en.wikipedia.org/wiki/Causal_inference"
+  },
+  "fundamental-problem": {
+    term: "Fundamental Problem",
+    def: "The impossibility of observing both potential outcomes for the same individual simultaneously.",
+    url: "https://en.wikipedia.org/wiki/Rubin_causal_model"
+  },
+  "possible-worlds": {
+    term: "Possible Worlds",
+    def: "Lewis's theory: counterfactuals are true if the consequent holds in the closest world where the antecedent holds.",
+    url: "https://plato.stanford.edu/entries/possible-worlds/"
   },
   "vae": {
     term: "Variational Autoencoder",

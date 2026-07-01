@@ -56,7 +56,6 @@
     position: relative;
     transition: background-color 0.3s ease, color 0.3s ease;
     overflow-wrap: break-word;
-    word-break: break-word;
   }
 
   @media (min-width: 768px) {
@@ -175,7 +174,6 @@
   margin: 0 auto;
   width: 100%;
   overflow-wrap: break-word;
-  word-break: break-word;
 }
 
 .prose p {
@@ -298,6 +296,8 @@ pre.astro-code {
   color: var(--ink-dim);
   vertical-align: top;
   transition: color 0.2s ease;
+  word-break: normal;
+  overflow-wrap: break-word;
 }
 
 @media (min-width: 768px) {
@@ -321,6 +321,9 @@ pre.astro-code {
   font-size: 0.95rem;
   width: 22%;
   padding-left: 1.25rem;
+  word-break: normal;
+  overflow-wrap: normal;
+  hyphens: none;
 }
 
 /* Centered Table Variant */

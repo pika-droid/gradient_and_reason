@@ -95,5 +95,17 @@ export const quotes: Quote[] = [
   {
     quote: "Attention is the rarest and purest form of generosity.",
     author: "Simone Weil"
+  },
+  {
+    quote: "We have no other notion of cause and effect, but that of certain objects, which have been always conjoin'd together, and which in all past instances have been found inseparable.",
+    author: "David Hume"
+  },
+  {
+    quote: "We think of a counterfactual as true if the consequent holds in all the closest possible worlds where the antecedent holds.",
+    author: "David Lewis"
+  },
+  {
+    quote: "The third rung of the Ladder of Causation is the rung of counterfactuals. It asks about retrospective reasoning: given that I did X and observed Y, what would have happened if I had done Z instead?",
+    author: "Judea Pearl"
   }
 ];

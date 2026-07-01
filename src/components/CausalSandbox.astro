@@ -1,0 +1,236 @@
+<div class="sandbox-container my-12 p-6 border border-ink-faint bg-surface rounded-lg select-none transition-colors duration-300">
+  <div class="sandbox-meta flex justify-between items-center mb-4 border-b border-ink-faint pb-3 flex-wrap gap-2">
+    <span class="sandbox-title font-garamond text-[0.75rem] tracking-[0.15em] uppercase text-accent font-medium">Twin-Network Counterfactual Simulator</span>
+    <span class="sandbox-instructions text-[0.7rem] text-ink-dim italic">Adjust the sliders to observe the abduction, action, and prediction phases in real-time</span>
+  </div>
+  
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-4">
+    <!-- Left panel: Causal Inputs -->
+    <div class="flex flex-col gap-5 bg-[#09090a] p-5 rounded border border-white/5">
+      <div>
+        <label for="confounder-x" class="block text-[0.7rem] font-mono uppercase tracking-wider text-ink-dim mb-1">
+          Environmental Visibility (Confounder X) = <span id="val-x" class="text-accent font-bold">0.50</span>
+        </label>
+        <input 
+          type="range" 
+          id="confounder-x" 
+          min="-2.0" 
+          max="2.0" 
+          step="0.1" 
+          value="0.5" 
+          class="w-full h-1 bg-white/10 rounded-lg appearance-none cursor-pointer accent-accent"
+        />
+        <div class="flex justify-between text-[0.6rem] font-mono text-ink-dim mt-1">
+          <span>Dark / Low Contrast (-2.0)</span>
+          <span>Clear / Daylight (2.0)</span>
+        </div>
+      </div>
+
+      <div class="border-t border-white/5 pt-3">
+        <label for="factual-t" class="block text-[0.7rem] font-mono uppercase tracking-wider text-ink-dim mb-1">
+          Factual Deceleration Force (Treatment T*) = <span id="val-t" class="text-amber-500 font-bold">-1.00</span>
+        </label>
+        <input 
+          type="range" 
+          id="factual-t" 
+          min="-2.0" 
+          max="2.0" 
+          step="0.1" 
+          value="-1.0" 
+          class="w-full h-1 bg-white/10 rounded-lg appearance-none cursor-pointer accent-accent"
+        />
+        <div class="flex justify-between text-[0.6rem] font-mono text-ink-dim mt-1">
+          <span>Swerved / Delayed Braking (-2.0)</span>
+          <span>Maximum Braking (2.0)</span>
+        </div>
+      </div>
+
+      <div class="border-t border-white/5 pt-3">
+        <label for="exogenous-uy" class="block text-[0.7rem] font-mono uppercase tracking-wider text-ink-dim mb-1">
+          Passenger Resilience (Exogenous Noise U_Y) = <span id="val-uy" class="text-stone-400 font-bold">-0.37</span>
+        </label>
+        <input 
+          type="range" 
+          id="exogenous-uy" 
+          min="-2.0" 
+          max="2.0" 
+          step="0.1" 
+          value="-0.4" 
+          class="w-full h-1 bg-white/10 rounded-lg appearance-none cursor-pointer accent-accent"
+        />
+        <div class="flex justify-between text-[0.6rem] font-mono text-ink-dim mt-1">
+          <span>Frail / Poor Angle (-2.0)</span>
+          <span>Robust / Safety Cage (2.0)</span>
+        </div>
+      </div>
+
+      <div class="border-t border-white/5 pt-3">
+        <label for="counterfactual-tc" class="block text-[0.7rem] font-mono uppercase tracking-wider text-ink-dim mb-1">
+          Counterfactual Deceleration (Intervention do(T) = x) = <span id="val-tc" class="text-emerald-500 font-bold">1.00</span>
+        </label>
+        <input 
+          type="range" 
+          id="counterfactual-tc" 
+          min="-2.0" 
+          max="2.0" 
+          step="0.1" 
+          value="1.0" 
+          class="w-full h-1 bg-white/10 rounded-lg appearance-none cursor-pointer accent-accent"
+        />
+        <div class="flex justify-between text-[0.6rem] font-mono text-ink-dim mt-1">
+          <span>Swerved / Delayed Braking (-2.0)</span>
+          <span>Maximum Braking (2.0)</span>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Right panel: Factual vs Counterfactual Worlds -->
+    <div class="flex flex-col bg-[#09090a] p-5 rounded border border-white/5 justify-between gap-4">
+      <div>
+        <h4 class="text-[0.7rem] font-mono uppercase tracking-wider text-ink-dim mb-3 border-b border-dashed border-white/5 pb-1">
+          Abductive Causal Readout
+        </h4>
+        
+        <!-- Factual Card -->
+        <div class="p-3 mb-3 bg-[#141310] border border-white/5 rounded">
+          <div class="flex justify-between items-center mb-1">
+            <span class="text-[0.7rem] font-mono text-ink-dim uppercase">Factual World (M)</span>
+            <span id="factual-badge" class="px-1.5 py-0.5 text-[0.6rem] font-mono rounded font-bold">...</span>
+          </div>
+          <div class="flex justify-between items-baseline">
+            <span class="text-[0.65rem] font-mono text-ink-dim">Y* = 2.0(T*) + 1.5(X) + U_Y</span>
+            <span id="factual-y-val" class="font-mono text-sm text-ink font-bold">0.00</span>
+          </div>
+        </div>
+
+        <!-- Counterfactual Card -->
+        <div class="p-3 bg-[#141310] border border-white/5 rounded">
+          <div class="flex justify-between items-center mb-1">
+            <span class="text-[0.7rem] font-mono text-ink-dim uppercase">Counterfactual World (M_x)</span>
+            <span id="counterfactual-badge" class="px-1.5 py-0.5 text-[0.6rem] font-mono rounded font-bold">...</span>
+          </div>
+          <div class="flex justify-between items-baseline">
+            <span class="text-[0.65rem] font-mono text-ink-dim">Y_x = 2.0(T_c) + 1.5(X) + U_Y</span>
+            <span id="counterfactual-y-val" class="font-mono text-sm text-ink font-bold">0.00</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Causal Effect Metric -->
+      <div class="border-t border-white/5 pt-3">
+        <div class="flex justify-between items-center">
+          <span class="text-[0.65rem] font-mono uppercase text-ink-dim">Individual Treatment Effect (&tau;_i)</span>
+          <span id="individual-effect-val" class="font-mono text-base font-bold text-accent">0.00</span>
+        </div>
+        <p class="text-[0.6rem] font-mono text-ink-dim mt-1 leading-relaxed">
+          The difference representing the exact value of the counterfactual intervention for this specific individual.
+        </p>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Retrospective Narrative Console -->
+  <div class="sandbox-console bg-[#09090a] border-t border-white/5 p-4 font-mono text-[0.72rem] text-code-txt rounded-b -mt-1 leading-relaxed">
+    <div class="console-line flex justify-between mb-2 border-b border-dashed border-white/5 pb-2">
+      <span>Causal Step: <span id="console-step" class="text-accent font-bold">Abduction &amp; Inference</span></span>
+      <span>Shared Noise: <span class="text-stone-400">U_Y is fixed across worlds</span></span>
+    </div>
+    <div class="console-narrative text-accent text-[0.75rem] min-h-[3rem]" id="console-narrative-text">
+      Adjust sliders to begin.
+    </div>
+  </div>
+</div>
+
+<script>
+  function initCausalSandbox() {
+    const sliderX = document.getElementById('confounder-x') as HTMLInputElement | null;
+    const sliderT = document.getElementById('factual-t') as HTMLInputElement | null;
+    const sliderUy = document.getElementById('exogenous-uy') as HTMLInputElement | null;
+    const sliderTc = document.getElementById('counterfactual-tc') as HTMLInputElement | null;
+
+    const valX = document.getElementById('val-x');
+    const valT = document.getElementById('val-t');
+    const valUy = document.getElementById('val-uy');
+    const valTc = document.getElementById('val-tc');
+
+    const factualYVal = document.getElementById('factual-y-val');
+    const factualBadge = document.getElementById('factual-badge');
+    const counterfactualYVal = document.getElementById('counterfactual-y-val');
+    const counterfactualBadge = document.getElementById('counterfactual-badge');
+    const individualEffectVal = document.getElementById('individual-effect-val');
+
+    const consoleNarrative = document.getElementById('console-narrative-text');
+
+    if (!sliderX || !sliderT || !sliderUy || !sliderTc || !valX || !valT || !valUy || !valTc || 
+        !factualYVal || !factualBadge || !counterfactualYVal || !counterfactualBadge || 
+        !individualEffectVal || !consoleNarrative) return;
+
+    function update() {
+      const X = parseFloat(sliderX!.value);
+      const T = parseFloat(sliderT!.value);
+      const Uy = parseFloat(sliderUy!.value);
+      const Tc = parseFloat(sliderTc!.value);
+
+      valX!.textContent = X.toFixed(2);
+      valT!.textContent = T.toFixed(2);
+      valUy!.textContent = Uy.toFixed(2);
+      valTc!.textContent = Tc.toFixed(2);
+
+      // Compute factual outcome Y*
+      const Y_fact = 2.0 * T + 1.5 * X + Uy;
+      factualYVal!.textContent = Y_fact.toFixed(4);
+
+      // Compute counterfactual outcome Y_x
+      const Y_counter = 2.0 * Tc + 1.5 * X + Uy;
+      counterfactualYVal!.textContent = Y_counter.toFixed(4);
+
+      // Compute ITE
+      const ITE = Y_counter - Y_fact;
+      individualEffectVal!.textContent = (ITE >= 0 ? '+' : '') + ITE.toFixed(4);
+
+      // Factual status badge
+      if (Y_fact >= 0) {
+        factualBadge!.textContent = "SURVIVED";
+        factualBadge!.className = "px-1.5 py-0.5 text-[0.6rem] font-mono rounded font-bold bg-emerald-950 text-emerald-400 border border-emerald-800/30";
+      } else {
+        factualBadge!.textContent = "FATAL COLLISION";
+        factualBadge!.className = "px-1.5 py-0.5 text-[0.6rem] font-mono rounded font-bold bg-rose-950 text-rose-400 border border-rose-800/30";
+      }
+
+      // Counterfactual status badge
+      if (Y_counter >= 0) {
+        counterfactualBadge!.textContent = "SURVIVED (GHOST)";
+        counterfactualBadge!.className = "px-1.5 py-0.5 text-[0.6rem] font-mono rounded font-bold bg-emerald-950 text-emerald-300 border border-emerald-700/40";
+      } else {
+        counterfactualBadge!.textContent = "FATAL (GHOST)";
+        counterfactualBadge!.className = "px-1.5 py-0.5 text-[0.6rem] font-mono rounded font-bold bg-rose-950 text-rose-300 border border-rose-700/40";
+      }
+
+      // Narrative logic
+      let narrative = "";
+      if (Y_fact < 0 && Y_counter >= 0) {
+        narrative = `RETROSPECTIVE JUSTICE: In the factual world, the passenger suffered a fatal injury (Y* = ${Y_fact.toFixed(2)}) under low braking (T* = ${T.toFixed(2)}). However, by abducting their unobserved resilience (U_Y = ${Uy.toFixed(2)}) and keeping it constant, we predict that they WOULD HAVE SURVIVED (Y_x = ${Y_counter.toFixed(2)}) had maximum braking been applied (T_c = ${Tc.toFixed(2)}). The intervention was causally decisive (ITE = +${ITE.toFixed(2)}).`;
+      } else if (Y_fact >= 0 && Y_counter < 0) {
+        narrative = `THE SWERVE TRAGEDY: In the factual world, the passenger survived (Y* = ${Y_fact.toFixed(2)}) under maximum braking (T* = ${T.toFixed(2)}). Had the vehicle switched to swerving (T_c = ${Tc.toFixed(2)}), the passenger WOULD HAVE DIED (Y_x = ${Y_counter.toFixed(2)}) despite their resilience. This proves that the automated braking system's factual decision was the but-for cause of their survival.`;
+      } else if (Y_fact < 0 && Y_counter < 0) {
+        narrative = `INEVITABLE LOSS: The collision is fatal in both worlds. Even under counterfactual intervention (T_c = ${Tc.toFixed(2)}), the poor visibility (X = ${X.toFixed(2)}) and low passenger resilience (U_Y = ${Uy.toFixed(2)}) make survival mathematically impossible (Y_x = ${Y_counter.toFixed(2)}). No human driver or software could have altered the outcome.`;
+      } else {
+        narrative = `ROBUST SURVIVAL: The passenger survives in both worlds. Their unobserved safety factor (U_Y = ${Uy.toFixed(2)}) and clear environmental contrast (X = ${X.toFixed(2)}) were sufficient to protect them, regardless of whether the system applied full braking or chose to swerve.`;
+      }
+      consoleNarrative!.textContent = narrative;
+    }
+
+    sliderX.addEventListener('input', update);
+    sliderT.addEventListener('input', update);
+    sliderUy.addEventListener('input', update);
+    sliderTc.addEventListener('input', update);
+
+    update();
+  }
+
+  // Initialize
+  initCausalSandbox();
+  document.addEventListener('astro:page-load', () => {
+    initCausalSandbox();
+  });
+</script>
