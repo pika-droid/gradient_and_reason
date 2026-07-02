@@ -364,14 +364,14 @@ ub = p_y1_t1 * p_t1 + 1 * p_t0 - (p_y1_t0 * p_t0 + 0 * p_t1)
 ```
 
 If we execute this script, we obtain the following:
-- **True Simulated Causal Effect**: $0.2458$
-- **Manski Lower Bound for Causal Effect**: $-0.2187$
-- **Manski Upper Bound for Causal Effect**: $0.7813$
+- **True Simulated Causal Effect**: $0.4937$
+- **Manski Lower Bound for Causal Effect**: $-0.2332$
+- **Manski Upper Bound for Causal Effect**: $0.7668$
 - **Width of the Uncertainty Interval**: $1.0000$
 
-Look at those bounds. The interval spans from $-0.2187$ to $0.7813$. 
+Look at those bounds. The interval spans from $-0.2332$ to $0.7668$. 
 
-This is the mathematical proof of our epistemic blindness. Without imposing strong, unverifiable structural assumptions on our model, the data cannot even tell us the sign of the causal effect. It is compatible with a world where the policy harms the population ($\text{ATE} = -0.2187$) and a world where it rescues them ($\text{ATE} = 0.7813$).
+This is the mathematical proof of our epistemic blindness. Without imposing strong, unverifiable structural assumptions on our model, the data cannot even tell us the sign of the causal effect. It is compatible with a world where the policy harms the population ($\text{ATE} = -0.2332$) and a world where it rescues them ($\text{ATE} = 0.7668$).
 
 And if we cannot even pin down the average effect without assumptions, our ability to declare with certainty that "if this specific car had braked, this specific passenger would have lived" is completely shattered. The counterfactual is not merely difficult to compute; it is structurally unreachable from empirical data alone.
 
@@ -382,18 +382,18 @@ And if we cannot even pin down the average effect without assumptions, our abili
   <div class="dash-grid-metrics">
     <div class="metric-card">
       <p class="metric-label">True Causal Effect</p>
-      <p class="metric-value text-emerald-500">0.2458</p>
+      <p class="metric-value text-emerald-500">0.4937</p>
       <p class="metric-subtext">Hidden physical ground truth</p>
     </div>
     <div class="metric-card">
       <p class="metric-label">Manski Bounds Width</p>
       <p class="metric-value text-rose-500">1.0000</p>
-      <p class="metric-subtext">[-0.2187, 0.7813] (No assumptions)</p>
+      <p class="metric-subtext">[-0.2332, 0.7668] (No assumptions)</p>
     </div>
     <div class="metric-card">
       <p class="metric-label">Monotonicity Bounds Width</p>
-      <p class="metric-value text-amber-500">0.7813</p>
-      <p class="metric-subtext">[0.0000, 0.7813] (With no-harm assumption)</p>
+      <p class="metric-value text-amber-500">0.7668</p>
+      <p class="metric-subtext">[0.0000, 0.7668] (With no-harm assumption)</p>
     </div>
   </div>
 
@@ -413,15 +413,15 @@ And if we cannot even pin down the average effect without assumptions, our abili
       <text x="425" y="198" fill="#6b6358" font-family="Crimson Pro" font-size="10" text-anchor="middle">0.5</text>
       <text x="550" y="198" fill="#6b6358" font-family="Crimson Pro" font-size="10" text-anchor="middle">1.0</text>
 
-      <rect x="245" y="45" width="250" height="30" fill="#8b7355" fill-opacity="0.15" stroke="#8b7355" stroke-width="1.5" />
-      <text x="255" y="64" fill="#8b7355" font-family="Crimson Pro" font-size="11" font-weight="bold">Manski Worst-Case Bounds</text>
+      <rect x="242" y="45" width="250" height="30" fill="#8b7355" fill-opacity="0.15" stroke="#8b7355" stroke-width="1.5" />
+      <text x="252" y="64" fill="#8b7355" font-family="Crimson Pro" font-size="11" font-weight="bold">Manski Worst-Case Bounds</text>
 
-      <rect x="300" y="95" width="195" height="30" fill="#c8bfaa" fill-opacity="0.1" stroke="#c8bfaa" stroke-dasharray="3,3" stroke-width="1.5" />
+      <rect x="300" y="95" width="192" height="30" fill="#c8bfaa" fill-opacity="0.1" stroke="#c8bfaa" stroke-dasharray="3,3" stroke-width="1.5" />
       <text x="310" y="114" fill="#c8bfaa" font-family="Crimson Pro" font-size="11">Monotonicity Bound (Assumed No-Harm)</text>
 
-      <circle cx="361.5" cy="150" r="5" fill="#c8bfaa" />
-      <line x1="361.5" y1="135" x2="361.5" y2="180" stroke="#c8bfaa" stroke-dasharray="2,2" />
-      <text x="371" y="148" fill="#c8bfaa" font-family="Crimson Pro" font-size="11">True Effect (0.2458)</text>
+      <circle cx="423.4" cy="150" r="5" fill="#c8bfaa" />
+      <line x1="423.4" y1="135" x2="423.4" y2="180" stroke="#c8bfaa" stroke-dasharray="2,2" />
+      <text x="433.4" y="148" fill="#c8bfaa" font-family="Crimson Pro" font-size="11">True Effect (0.4937)</text>
     </svg>
   </div>
 
@@ -433,11 +433,11 @@ And if we cannot even pin down the average effect without assumptions, our abili
 <MetaJourney title="Behind the Gradient: The Monotonicity Assumption's Hidden Weight">
 When we first ran our diagnostic suite on the auto-braking system, we found that the raw, non-parametric bounds of safety performance were completely useless. The code returned an interval that allowed for both severe harm and total safety.
 
-To tighten the bounds, we added a single line to our optimization constraints: `assume_monotonicity = True`. In causal terms, this was the assumption that "aggressive braking can never harm the passenger." Under this constraint, the lower bound of our effect immediately collapsed from $-0.2187$ to exactly $0.0000$. The mathematics became clean, the intervals became tight, and the safety report looked incredibly confident.
+To tighten the bounds, we added a single line to our optimization constraints: `assume_monotonicity = True`. In causal terms, this was the assumption that "aggressive braking can never harm the passenger." Under this constraint, the lower bound of our effect immediately collapsed from $-0.2332$ to exactly $0.0000$. The mathematics became clean, the intervals became tight, and the safety report looked incredibly confident.
 
-But as we sat in the review room, we realized what we had actually done. The assumption of monotonicity is not a statistical discovery. It is a moral stance. It is the active decision to declare that a particular action cannot cause harm. In the physical world, children in small booster seats can be severely injured by high-g decelerations. By adding that single constraint in Python to get a clean, narrow bound, we had mathematically erased the very children we were trying to protect.
+But as we sat in the review room, we realized what we had actually done. The assumption of monotonicity is not a statistical discovery. It is an identifying assumption that is mathematically convenient but *empirically fallible*. In the physical world, children in small booster seats can be severely injured by high-g decelerations. By adding that single constraint in Python to get a clean, narrow bound, we had mathematically erased the potential heterogenous harms to sub-populations.
 
-We had made our model certain by making it blind.
+We had purchased our model's certainty at the price of selective blindness.
 </MetaJourney>
 </ScrollReveal>
 

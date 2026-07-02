@@ -1,0 +1,45 @@
+======================================================================
+RUNNING PREDICTION IS NOT UNDERSTANDING: ACTIVE EXPERIMENTS
+======================================================================
+
+--- EXPERIMENT 1: SCM MLP Intervention Collapse ---
+MLP Observational Prediction R^2: 0.9539 (Target: >0.99)
+Pearl Intervention do(Y = 2.0):
+  True Causal Expectation E[Z | do(Y=2.0)]: 3.9813 (Theoretical: 4.000)
+  MLP Predictive Expectation E[Z | Y=2.0] : 6.7576 (Theoretical: 7.000)
+  Prediction Error under Intervention    : 2.7763
+
+--- EXPERIMENT 2: VAE Causal Conflation ---
+Learned Latent Dimension 0 correlation with Size: 0.2352
+Learned Latent Dimension 0 correlation with Rotation: 0.7191
+Learned Latent Dimension 1 correlation with Size: 0.9979
+Learned Latent Dimension 1 correlation with Rotation: 0.8678
+Model A Reconstruction MSE: 0.5580
+Model B Reconstruction MSE: 0.3560
+R^2 between Model A and Model B Latent Dimension 0: 0.9420
+R^2 between Model A and Model B Latent Dimension 1: 0.9640
+
+--- EXPERIMENT 3: Colored MNIST / Shortcut Learning ---
+CNN Train Accuracy: 94.90%
+CNN In-Distribution Test Accuracy: 93.20%
+CNN Out-of-Distribution Test Accuracy: 4.80%
+Accuracy Drop: 88.40% drop
+
+--- EXPERIMENT 4: Superposition Geometry ---
+Learned weight columns (columns of W):
+  Column 0: [1.0000, 0.0000]
+  Column 1: [0.3090, 0.9511]
+  Column 2: [-0.8090, 0.5878]
+  Column 3: [-0.8090, -0.5878]
+  Column 4: [0.3090, -0.9511]
+Average angle between adjacent columns: 72.0° (Target: 72.0°)
+Neuron 0 weight magnitudes: [1.         0.30901699 0.80901699 0.80901699 0.30901699]
+Neuron 0 responds strongly (|weight| > 0.45) to 3 features (Target: 3)
+
+--- EXPERIMENT 5: IHDP Causal Inference ---
+Naive Treatment Coefficient P(Y | X) : -1.5459 (Target: -1.546)
+Adjusted Treatment Coefficient P(Y | do(X)): 2.0007 (Target: 2.001)
+
+Saved validation plot to C:\Users\ashmi\OneDrive\Documents\Personal Projects\Gradient and Reason\notebooks\prediction-is-not-understanding\prediction_is_not_understanding_validation.png
+All simulations complete.
+======================================================================

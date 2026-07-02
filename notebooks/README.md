@@ -16,6 +16,7 @@ Each essay has a corresponding directory containing:
 | Prediction Is Not Understanding | [`prediction-is-not-understanding/`](./prediction-is-not-understanding/) | SCMs, VAE representations, Colored MNIST, superposition, IHDP causal inference |
 | The Topography of Loss | [`the-topography-of-loss/`](./the-topography-of-loss/) | β-VAE, KL divergence, machine unlearning, concept drift |
 | The Hallucination and the Lie | [`the-hallucination-and-the-lie/`](./the-hallucination-and-the-lie/) | Autoregressive log-probabilities, cross-entropy, GPT-2 confidence inversion |
+| Causal Ghosts | [`causal-ghosts/`](./causal-ghosts/) | SCMs, twin-networks, counterfactual estimation, Manski bounds, monotonicity |
 
 ## Reproducibility
 

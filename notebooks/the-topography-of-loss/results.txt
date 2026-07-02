@@ -1,0 +1,39 @@
+======================================================================
+RUNNING EMPIRES OF THE MANIFOLD: VERIFYING HYPOTHESES
+======================================================================
+Generated 400 sensory experiences in 256-dimensional space.
+
+--- EXPERIMENT 1: Testing Regularization Beta (beta-VAE) ---
+  Beta= 0.0 | Recon=0.5661 | KL=12.0025 | Spread=2.7498
+  Beta= 1.0 | Recon=0.6197 | KL=1.9214 | Spread=0.8862
+  Beta=10.0 | Recon=8.6832 | KL=0.0000 | Spread=0.0000
+
+>> As beta increases, KL drops and latent space collapses (spread -> 0).
+   Perfect recall requires a disjoint space (beta=0); abstraction requires structural forgetting.
+
+--- EXPERIMENT 2: Deleting Coordinates (Unlearning Force & SGD) ---
+  Calculating instantaneous loss gradients on the base model weights...
+  -> Isolated Unlearning Force (1 deletion):      0.005535
+  -> Isolated Unlearning Force (cluster deletion): 0.960824
+  -> Ratio: 173.59x greater gradient pressure
+
+  Performing physical parameter updates using Vanilla SGD...
+  -> L2 weight delta | 1 sample:  0.000051
+  -> L2 weight delta | 1 cluster: 0.008190
+  -> Physical impact ratio: 161.91x greater weight shift
+
+>> With Adam's scale invariance bypassed, baseline gradients subtracted inside
+   the step loop, and a surrogate loss used, cluster deletion produces a massive,
+   proportional restructuring force versus a single experience coordinate.
+
+--- EXPERIMENT 3: Decoder Drift (Temporal Shift of Meaning) ---
+  Measuring Reconstruction Decay (MSE) of static coordinate through drifting decoders:
+  -> Drift 0.01 | MSE degradation: 0.000083
+  -> Drift 0.05 | MSE degradation: 0.001868
+  -> Drift 0.10 | MSE degradation: 0.005641
+  -> Drift 0.20 | MSE degradation: 0.028898
+
+>> A 20x increase in drift (0.01->0.20) produces a 348x increase in
+   reconstruction degradation. The relationship is superlinear — meaning decays
+   faster than drift grows. Memory fidelity depends on the decoder speaking the
+   same language as when the coordinate was encoded.

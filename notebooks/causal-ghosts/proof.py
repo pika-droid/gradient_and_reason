@@ -11,6 +11,7 @@ Original file is located at:
 # CELL 1: Setup and Parameter Configurations
 # =====================================================================
 import numpy as np
+import os
 import scipy.stats as stats
 import matplotlib
 matplotlib.use('Agg')
@@ -124,9 +125,11 @@ np.random.seed(42)
 n_bounds = 10000
 
 u_b = np.random.uniform(0, 1, n_bounds)
+v_b = np.random.uniform(0, 1, n_bounds)  # Structural noise for Y
 t_b = (np.random.uniform(0, 1, n_bounds) < 0.3 + 0.4 * u_b).astype(int)
-y_b = (np.random.uniform(0, 1, n_bounds) < 0.5 * t_b + 0.4 * u_b).astype(int)
+y_b = (v_b < 0.5 * t_b + 0.4 * u_b).astype(int)
 
+# Calculating Manski's worst-case non-parametric bounds for the ATE
 p_y1_t1 = y_b[t_b==1].mean()
 p_y1_t0 = y_b[t_b==0].mean()
 p_t1 = t_b.mean()
@@ -141,9 +144,15 @@ monotonicity_ub = p_y1_t1 * p_t1 + (1.0 - p_y1_t0) * p_t0
 mon_width = monotonicity_ub - monotonicity_lb
 improvement = (1 - (mon_width / manski_width)) * 100
 
+# Calculate true causal effect from potential outcomes on the same subjects
+y1_b = (v_b < 0.5 * 1 + 0.4 * u_b).astype(int)
+y0_b = (v_b < 0.5 * 0 + 0.4 * u_b).astype(int)
+true_effect = (y1_b - y0_b).mean()
+
 print(f"\n--- EMPIRICAL SURPRISE 2: NON-IDENTIFIABILITY ---")
 print(f"Without assumptions, ATE in [{manski_lb:.4f}, {manski_ub:.4f}] — width = {manski_width:.4f}")
 print(f"With monotonicity, ATE in [{monotonicity_lb:.4f}, {monotonicity_ub:.4f}] — width = {mon_width:.4f}")
+print(f"True Simulated Causal Effect: {true_effect:.4f} (Theoretical: 0.5000)")
 print(f"The monotonicity assumption reduced uncertainty by {improvement:.2f}%")
 
 # =====================================================================
@@ -176,7 +185,7 @@ ax2.barh(bounds_labels, [upper_limits[0] - lower_limits[0], upper_limits[1] - lo
          left=lower_limits, height=0.3, color=['#8b7355', '#4a3f2f'], edgecolor='#2a2823', alpha=0.8)
 
 # Mark the factual true causal effect
-ax2.axvline(0.2458, color='#c8bfaa', linestyle='--', linewidth=2, label='True Causal Effect (0.2458)')
+ax2.axvline(true_effect, color='#c8bfaa', linestyle='--', linewidth=2, label=f'True Causal Effect ({true_effect:.4f})')
 ax2.axvline(0.0, color='#2a2823', linestyle='-', linewidth=1)
 
 ax2.set_title('Epistemic Constraints on Causal Reasoning', fontsize=13, fontstyle='italic', pad=15, color='#c8bfaa')
@@ -187,7 +196,8 @@ ax2.legend(loc='lower right', frameon=False, labelcolor='#c8bfaa')
 
 # Clean and show layout
 plt.tight_layout()
-plt.savefig('causal_ghosts_plot.png', dpi=300)
+plot_path = os.path.join(os.path.dirname(__file__), 'causal_ghosts_plot.png')
+plt.savefig(plot_path, dpi=300)
 plt.close()
 
-print("\nAll simulations run successfully. The causal ghosts have been saved to causal_ghosts_plot.png.")
+print(f"\nAll simulations run successfully. The causal ghosts have been saved to {plot_path}.")

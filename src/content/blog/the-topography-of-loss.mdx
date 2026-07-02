@@ -27,7 +27,7 @@ This is not a failure of storage. It is the nature of the operation itself. And 
 
 What follows is not a technical treatise. It is an attempt to use the architecture of representation learning as an epistemic object — a lens that brings into focus something we have long felt but rarely been able to describe precisely. That *loss is not deletion*. That forgetting is geometry, not erasure. That to remember is to reconstruct from coordinates that may have quietly shifted.
 
-*You can verify the empirical code and models in this essay by running them yourself in the [accompanying Google Colab notebook](https://colab.research.google.com/drive/1_DMlqpLdXui5wSIgwxDPw_cz-97dy7Om?authuser=1#scrollTo=GFUKrL6bJkbN).*
+*You can verify the empirical code and models in this essay by running them yourself in the [accompanying script and notebook environment](https://github.com/pika-droid/gradient_and_reason/tree/main/notebooks/the-topography-of-loss).*
 </ScrollReveal>
 
 <ScrollReveal>
@@ -74,7 +74,11 @@ This is where we meet the structure of the human mind. The dimensions of this sp
 — **Sigmund Freud** (from *A Note upon the "Mystic Writing-Pad"*, 1925)
 </Philosophy>
 
-This distributed preservation recalls Sigmund Freud’s model of memory: **The Mystic Writing Pad** (1925). Freud described memory as a two-layer system—a transient celluloid sheet and an underlying wax slab. Write upon the pad, and the markings transfer to the wax. Wipe the sheet, and the writing vanishes from view, yet its impressions remain scored permanently in the wax below. In modern networks, our weights function exactly like Freud's wax slab: the inputs are cleared immediately, but the weights have morphed, storing traces of what they once touched.
+This distributed preservation reveals a striking synthesis between two historically opposed philosophies of memory: Henri Bergson’s temporal flow (*durée*) and Sigmund Freud’s spatial recording device. 
+
+While Bergson argued that memory is a continuous, non-spatial flow of the past folding into the present (which we see mirrored in the unfragmented, smooth geometry of the VAE's latent space), Freud described memory as a two-layer spatial system—**The Mystic Writing Pad** (1925). Write upon the celluloid sheet, and the markings transfer to the wax slab. Wipe the sheet, and the writing vanishes, yet its physical impressions remain scored permanently in the wax below. 
+
+In a generative model, we find both models harmonized. The transient inputs and reconstructions act like Bergson's fluid act of attention, cleared instantly from memory. The underlying model parameters (the weights), however, function exactly like Freud's wax slab: they are scored and warped by every gradient that passes through them, carrying permanent, sub-threshold traces of what they once touched.
 
 <CodeTabs tabs={["PyTorch (VAE)", "NumPy (Math)", "Conceptual JS"]}>
 

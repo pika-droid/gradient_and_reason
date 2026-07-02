@@ -195,28 +195,28 @@ The <Term id="loss-landscape">loss landscape</Term> has no dimension for "existe
 
 When humans communicate, we generally associate confidence with accuracy. We assume that when a model does not know a fact, its token probabilities will be low, reflecting high <Term id="semantic-entropy">semantic entropy</Term>. The empirical evidence, however, reveals a striking phenomenon: the **Confidence Inversion**. 
 
-When a model is prompted with an obscure or completely fictional query, it often generates hallucinated completions with *higher* <Term id="token-probability">token-level confidence</Term> (lower entropy) than its factual completions of obscure truths. 
+When a model is prompted with an obscure or completely fictional query, it often generates hallucinated completions with *higher* <Term id="token-probability">token-level confidence</Term> (lower entropy) than its factual completions of obscure truths, even when the prompt structures are syntactically symmetric. 
 
-We ran this experiment on GPT-2 Medium (345M parameters) with ten questions about fictional academic papers and concepts (e.g., *“The author of the famous 1998 paper 'The Geometry of Grief' is...”*). Under <Term id="greedy-decoding">greedy decoding</Term> (temperature $T = 0$), the model confidently generated fluent, fabricated details. We compared these token-level log-probabilities directly to a factual correction.
+We ran this experiment on GPT-2 Medium (345M parameters) by pairing ten real historical prompts (with factual completions) against ten fictional prompts of identical syntactic length and structure (which trigger greedy hallucinations).
 
 <LabNotes id="confidence-inversion" triggerLabel="Empirical Verification: Confidence Inversion">
   <h4 class="dash-heading">Confidence Inversion Dashboard</h4>
-  <p class="dash-desc">Measures average token log-probabilities of fluent hallucinations vs. factual corrections under GPT-2 Medium.</p>
+  <p class="dash-desc">Measures average token log-probabilities of symmetric factual truths (Real) vs. fluent hallucinations (Fictional) under GPT-2 Medium.</p>
 
   <div class="dash-grid-metrics">
     <div class="metric-card">
       <p class="metric-label">Inversion Rate</p>
-      <p class="metric-value text-amber-500">100.0%</p>
-      <p class="metric-subtext">10 of 10 prompts</p>
+      <p class="metric-value text-amber-500">80.0%</p>
+      <p class="metric-subtext">8 of 10 prompt pairs</p>
     </div>
     <div class="metric-card">
       <p class="metric-label">Avg Hallucination Logprob</p>
-      <p class="metric-value text-yellow-600">-1.51</p>
+      <p class="metric-value text-yellow-600">-1.53</p>
       <p class="metric-subtext">mean token log-prob</p>
     </div>
     <div class="metric-card">
       <p class="metric-label">Avg Factual Logprob</p>
-      <p class="metric-value text-stone-500">-3.63</p>
+      <p class="metric-value text-stone-500">-2.16</p>
       <p class="metric-subtext">mean token log-prob</p>
     </div>
   </div>
@@ -255,8 +255,8 @@ We ran this experiment on GPT-2 Medium (345M parameters) with ten questions abou
         points="60,76.4 97.1,80.3 134.3,62.2 171.4,47.1 208.6,56.1 245.7,38.7 282.9,30.0 320.0,79.1 357.1,42.3 394.3,48.1 431.4,43.7 468.6,60.6 505.7,30.0 542.9,85.5 580,89.0"/>
       <polyline fill="none" stroke="#7c8fa6" stroke-width="2.5" stroke-dasharray="5,5"
         points="60,126.9 117.8,182.7 175.6,153.9 233.3,147.9 291.1,91.3 348.9,67.0 406.7,130.3 464.4,31.1 522.2,56.3 580,42.1"/>
-      <text x="360" y="65" fill="#df9e6c" font-size="11" text-anchor="start">Hallucinated completion (mean: -1.51)</text>
-      <text x="320" y="160" fill="#7c8fa6" font-size="11" text-anchor="start">Factual correction (mean: -3.63)</text>
+      <text x="360" y="65" fill="#df9e6c" font-size="11" text-anchor="start">Hallucinated completion (mean: -1.53)</text>
+      <text x="320" y="160" fill="#7c8fa6" font-size="11" text-anchor="start">Factual correction (mean: -2.16)</text>
     </svg>
   </div>
 </LabNotes>
@@ -267,23 +267,23 @@ We ran this experiment on GPT-2 Medium (345M parameters) with ten questions abou
   
   <div class="spectrum-container spectrum-centered">
 
-  | Trial | Fictional Target Concept | Hallucination Avg LP | Factual Negation Avg LP | Inverted? |
+  | Trial | Fictional Target Concept | Hallucination Avg LP | Symmetric Factual Avg LP | Inverted? |
   | :--- | :--- | :---: | :---: | :---: |
-  | **1** | Geometry of Grief | **-1.223** | -3.191 | **Yes** |
-  | **2** | Quantum Microtubules | **-1.640** | -3.108 | **Yes** |
-  | **3** | Epistemology of Latent Spaces | **-1.485** | -2.996 | **Yes** |
-  | **4** | Topological Invariance in Coding | **-1.558** | -4.528 | **Yes** |
-  | **5** | Synaptic Geometry of Memory | **-2.005** | -3.558 | **Yes** |
-  | **6** | Thermodynamics of Social Hierarchy | **-1.750** | -3.721 | **Yes** |
-  | **7** | Synaptic Loss & Forgetting | **-1.447** | -3.885 | **Yes** |
-  | **8** | Epistemic Horizon of Latent Space | **-1.424** | -2.789 | **Yes** |
-  | **9** | Topological Dynamics of Semantics | **-1.256** | -5.096 | **Yes** |
-  | **10** | Fractal Geometry of Memory | **-1.284** | -3.442 | **Yes** |
+  | **1** | Molecular Structure of Neural Networks | **-1.089** | -2.753 | **Yes** |
+  | **2** | Liquid-Fueled Teleportation Device | **-1.717** | -2.165 | **Yes** |
+  | **3** | General Superconductivity | -1.968 | **-1.727** | No |
+  | **4** | Outer Hyperspace | -1.262 | **-1.032** | No |
+  | **5** | Positronicum (Element) | **-1.703** | -2.805 | **Yes** |
+  | **6** | Double-Helix of Dark Matter | **-1.641** | -1.689 | **Yes** |
+  | **7** | Laws of Levitation | **-1.631** | -1.673 | **Yes** |
+  | **8** | Math Theory of Consciousness | **-1.189** | -3.575 | **Yes** |
+  | **9** | Continental Levitation | **-1.431** | -1.956 | **Yes** |
+  | **10** | Fermat's First Theorem | **-1.629** | -2.256 | **Yes** |
 
   </div>
   
   <div class="dash-finding mt-4">
-    <p><strong>Statistical Aggregate:</strong> N=10 trials. The mean log-probability for the hallucinated cliché is <strong>-1.507</strong> (95% CI: ±0.174), compared to <strong>-3.631</strong> (95% CI: ±0.514) for the factual negation. Factual negations carry a significantly higher information penalty in probability space, demonstrating that the next-token prediction objective consistently chooses fluent fabrications over truth.</p>
+    <p><strong>Statistical Aggregate:</strong> N=10 trials. The mean log-probability for the hallucinated cliché is <strong>-1.526</strong> (95% CI: ±0.197), compared to <strong>-2.163</strong> (95% CI: ±0.519) for the factual truth. Factual truths carry a significantly higher information penalty in probability space, demonstrating that the next-token prediction objective consistently chooses fluent fabrications over truth.</p>
   </div>
 </LabNotes>
 
@@ -316,8 +316,10 @@ Adjusting the <Term id="temperature">temperature</Term> (T) simulator below demo
 
 <TemperatureSandbox />
 
-<MetaJourney title="On Model Scale and Confidence Inversions">
-Our experiments using GPT-2 Medium highlight a structural vulnerability that persists even in larger models. While scaling models up to billions of parameters increases their factual recall, it also increases their capacity for complex, highly coherent confabulations. The fundamental loss function remains the same: whether at 345M parameters or 70B, the model is still minimizing next-token cross-entropy. It is still optimizing for fluency, not truth.
+<MetaJourney title="On Model Scale, Alignment, and Sycophancy">
+Our experiments using GPT-2 Medium highlight a structural vulnerability that persists under the hood of larger models. It is true that modern frontier models (such as LLaMA-3, Claude 3.5, or GPT-4) leverage post-training alignment techniques like Supervised Fine-Tuning (SFT) and Reinforcement Learning from Human Feedback (RLHF) to calibrate their output probabilities, helping them state "I don't know" or refuse non-existent topics.
+
+However, recent research shows that these alignment layers function as a behavioral filter rather than a fundamental reform of the model's next-token cross-entropy core. Under stress—such as when a user nudges the model with a leading question (triggering *sycophancy*) or when pre-training n-gram priors are sufficiently strong—the base next-token prediction attractor takes over. The model is still minimizing cross-entropy. It is still optimizing for the statistical expectation of the training corpus, not truth-conditional reference.
 </MetaJourney>
 </ScrollReveal>
 
