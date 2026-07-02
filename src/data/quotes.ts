@@ -107,5 +107,9 @@ export const quotes: Quote[] = [
   {
     quote: "The third rung of the Ladder of Causation is the rung of counterfactuals. It asks about retrospective reasoning: given that I did X and observed Y, what would have happened if I had done Z instead?",
     author: "Judea Pearl"
+  },
+  {
+    quote: "Words do not stand for things by themselves, nor does a mind stand for things by itself... Symbols do not correspond to things.",
+    author: "Hilary Putnam"
   }
 ];
