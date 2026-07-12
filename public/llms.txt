@@ -1,0 +1,49 @@
+﻿# Gradient and Reason
+
+On machine knowledge & philosophical loss. Computational essays integrating machine learning, analytics, and epistemology.
+
+Gradient and Reason is an archival research project and digital blog operating at the intersection of empirical machine learning (PyTorch, causal inference, high-dimensional representation geometry) and classical philosophy (epistemology, cognitive science, memory, and structural representations).
+
+## Metadata & Contact
+
+- **Author:** Ashmit Mandal
+- **Affiliation:** Student & Researcher in CS/ML at Kalinga Institute of Industrial Technology (KIIT)
+- **Role:** ML / Data Science / Epistemology Investigator
+- **Primary Domain:** https://gradient-and-reason.vercel.app
+- **Repository:** https://github.com/pika-droid/gradient_and_reason
+- **Email:** ashmitmandal2k04@gmail.com
+- **GitHub:** https://github.com/pika-droid
+- **LinkedIn:** https://linkedin.com/in/ashmit-mandal-2k04
+
+## Tech Stack
+Astro v6, MDX, TailwindCSS, Pagefind client-side search, KaTeX (remark-math/rehype-katex), PyTorch for empirical notebooks.
+
+## Site Structure
+
+### Core Pages
+- **Home (`/`):** Landing page introducing the project's conceptual mission, presenting featured essays, and showing selected citation/reading notes.
+- **Essays Archive (`/essays`):** Complete chronological list of all published essays grouped by publication year.
+- **About (`/about`):** Details about the project's concept (reconciling empirical engineering with philosophical questions), the author's background, and BibTeX citation formatting rules.
+
+### Essays (Digital Archive)
+Each essay represents a complete inquiry that matches PyTorch/Python experiments with philosophical concepts.
+
+#### 1. Causal Ghosts (`/essays/causal-ghosts`)
+- **Focus:** Causal inference, counterfactuals, moral responsibility, and the Pearl Causal Hierarchy (Pearl's Ladder).
+- **Abstract:** Investigation of counterfactual inference and moral responsibility through structural causal models, examining the mathematical and philosophical nature of what never happened.
+- **Keywords:** counterfactuals, causal-inference, epistemology, moral-philosophy, pearl-ladder.
+
+#### 2. The Hallucination and the Lie (`/essays/the-hallucination-and-the-lie`)
+- **Focus:** Autoregressive language models, next-token prediction, Harry Frankfurt's theory of bullshit, and testimony.
+- **Abstract:** Inquiry into why language models cannot lie (lacking intent) but rather produce bullshit, demonstrating how next-token cross-entropy optimization decouples testimony from agency.
+- **Keywords:** language-models, epistemology, philosophy-of-mind, hallucination, cross-entropy-loss.
+
+#### 3. Prediction Is Not Understanding (`/essays/prediction-is-not-understanding`)
+- **Focus:** Causal inference, out-of-distribution generalization, shortcut learning, and underdetermination (Duhem-Quine thesis).
+- **Abstract:** Analysis of why predictive success in neural networks does not equate to scientific understanding, using empirical PyTorch/SCM models to demonstrate the structural gap.
+- **Keywords:** causal-inference, epistemology, interpretability, shortcut-learning, superposition.
+
+#### 4. The Topography of Loss (`/essays/the-topography-of-loss`)
+- **Focus:** Latent space representations, machine unlearning, concept drift, and human memory/grief.
+- **Abstract:** Exploring the geometry of variational autoencoder (VAE) latent spaces as a formal model for human memory, grief, and machine unlearning via Kullback-Leibler (KL) divergence.
+- **Keywords:** representation-learning, unlearning, concept-drift, grief, memory.

@@ -22,7 +22,7 @@ const formattedDate = new Date(date).toLocaleDateString('en-US', {
 const paddedIndex = index !== undefined ? String(index).padStart(2, '0') : undefined;
 ---
 
-<div class="pb-8 mb-8 border-b border-ink-faint last:pb-0 last:mb-0 last:border-b-0 group">
+<article class="pb-8 mb-8 border-b border-ink-faint last:pb-0 last:mb-0 last:border-b-0 group">
   <a href={`/essays/${slug}`} class="block no-underline hover:no-underline">
     <!-- Date & Reading Time label -->
     <span class="type-label text-[0.62rem] text-ink-dim/60 block mb-2 transition-colors duration-300">
@@ -50,5 +50,5 @@ const paddedIndex = index !== undefined ? String(index).padStart(2, '0') : undef
       </div>
     )}
   </a>
-</div>
+</article>
 

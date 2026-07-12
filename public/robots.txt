@@ -1,0 +1,30 @@
+﻿# https://www.robotstxt.org/robotstxt.html
+
+# Allow all search engines and user agents
+User-agent: *
+Allow: /
+
+# Explicitly allow AI search engines, agents, and scrapers
+User-agent: GPTBot
+Allow: /
+
+User-agent: Claude-Web
+Allow: /
+
+User-agent: ClaudeBot
+Allow: /
+
+User-agent: PerplexityBot
+Allow: /
+
+User-agent: Google-Extended
+Allow: /
+
+User-agent: FacebookBot
+Allow: /
+
+User-agent: omgilibot
+Allow: /
+
+# Sitemap
+Sitemap: https://gradient-and-reason.vercel.app/sitemap-index.xml

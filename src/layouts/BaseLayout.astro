@@ -26,6 +26,129 @@ const {
 } = Astro.props;
 const canonicalURL = new URL(Astro.url.pathname, 'https://gradient-and-reason.vercel.app');
 const imageUrl = new URL(image, 'https://gradient-and-reason.vercel.app');
+
+const personSchema = {
+  "@type": "Person",
+  "@id": "https://gradient-and-reason.vercel.app/#person",
+  "name": "Ashmit Mandal",
+  "url": "https://gradient-and-reason.vercel.app/about",
+  "image": "https://gradient-and-reason.vercel.app/og-default.png",
+  "description": "Researcher and developer working at the intersection of Machine Learning, Data Science, and Epistemology.",
+  "sameAs": [
+    "https://github.com/pika-droid",
+    "https://linkedin.com/in/ashmit-mandal-2k04"
+  ],
+  "email": "ashmitmandal2k04@gmail.com",
+  "affiliation": {
+    "@type": "EducationalOrganization",
+    "name": "Kalinga Institute of Industrial Technology (KIIT)"
+  }
+};
+
+const publisherSchema = {
+  "@type": "Organization",
+  "@id": "https://gradient-and-reason.vercel.app/#organization",
+  "name": "Gradient and Reason",
+  "url": "https://gradient-and-reason.vercel.app",
+  "logo": {
+    "@type": "ImageObject",
+    "url": "https://gradient-and-reason.vercel.app/favicon.svg"
+  }
+};
+
+let schemaGraph = [];
+
+if (date) {
+  schemaGraph = [
+    {
+      "@type": essayType === "empirical" ? "TechArticle" : "Article",
+      "@id": `${canonicalURL.toString()}#article`,
+      "isPartOf": {
+        "@type": "WebPage",
+        "@id": canonicalURL.toString(),
+        "url": canonicalURL.toString(),
+        "name": title,
+        "description": description,
+        "isPartOf": {
+          "@type": "WebSite",
+          "@id": "https://gradient-and-reason.vercel.app/#website"
+        }
+      },
+      "headline": title,
+      "description": description,
+      "image": imageUrl.toString(),
+      "datePublished": date instanceof Date ? date.toISOString() : date,
+      "author": {
+        "@id": "https://gradient-and-reason.vercel.app/#person"
+      },
+      "publisher": {
+        "@id": "https://gradient-and-reason.vercel.app/#organization"
+      },
+      "keywords": keywords ? keywords.join(', ') : "",
+      "url": canonicalURL.toString()
+    },
+    personSchema,
+    publisherSchema
+  ];
+} else if (Astro.url.pathname === '/about' || Astro.url.pathname === '/about/') {
+  schemaGraph = [
+    {
+      "@type": "ProfilePage",
+      "@id": canonicalURL.toString(),
+      "url": canonicalURL.toString(),
+      "name": title,
+      "description": description,
+      "isPartOf": {
+        "@type": "WebSite",
+        "@id": "https://gradient-and-reason.vercel.app/#website"
+      },
+      "mainEntity": {
+        "@id": "https://gradient-and-reason.vercel.app/#person"
+      }
+    },
+    personSchema,
+    publisherSchema
+  ];
+} else if (Astro.url.pathname === '/' || Astro.url.pathname === '') {
+  schemaGraph = [
+    {
+      "@type": "WebSite",
+      "@id": "https://gradient-and-reason.vercel.app/#website",
+      "url": "https://gradient-and-reason.vercel.app/",
+      "name": "Gradient and Reason",
+      "description": "On machine knowledge & philosophical loss. Computational essays integrating machine learning, analytics, and epistemology.",
+      "publisher": {
+        "@id": "https://gradient-and-reason.vercel.app/#organization"
+      },
+      "author": {
+        "@id": "https://gradient-and-reason.vercel.app/#person"
+      }
+    },
+    personSchema,
+    publisherSchema
+  ];
+} else {
+  schemaGraph = [
+    {
+      "@type": "WebPage",
+      "@id": canonicalURL.toString(),
+      "url": canonicalURL.toString(),
+      "name": title,
+      "description": description,
+      "isPartOf": {
+        "@type": "WebSite",
+        "@id": "https://gradient-and-reason.vercel.app/#website"
+      }
+    },
+    personSchema,
+    publisherSchema
+  ];
+}
+
+const jsonLd = {
+  "@context": "https://schema.org",
+  "@graph": schemaGraph
+};
 ---
 
 <!DOCTYPE html>
@@ -42,26 +165,7 @@ const imageUrl = new URL(image, 'https://gradient-and-reason.vercel.app');
     <link rel="canonical" href={canonicalURL} />
 
     <!-- Structured Data (JSON-LD) -->
-    {date && (
-      <script type="application/ld+json" is:inline set:html={JSON.stringify({
-        "@context": "https://schema.org",
-        "@type": essayType === "empirical" ? "TechArticle" : "Article",
-        "headline": title,
-        "description": description,
-        "image": imageUrl.toString(),
-        "datePublished": date instanceof Date ? date.toISOString() : date,
-        "author": {
-          "@type": "Person",
-          "name": "Ashmit Mandal"
-        },
-        "publisher": {
-          "@type": "Organization",
-          "name": "Gradient and Reason"
-        },
-        "keywords": keywords ? keywords.join(', ') : "",
-        "url": canonicalURL.toString()
-      })} />
-    )}
+    <script type="application/ld+json" is:inline set:html={JSON.stringify(jsonLd)} />
 
     <!-- Open Graph / Facebook -->
     <meta property="og:type" content="website" />
